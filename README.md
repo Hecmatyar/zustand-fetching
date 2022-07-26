@@ -182,36 +182,174 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-- **_extra_** - это объект который позволяет вам получить полный контроль над выполнением запроса и творить магию. Вот
-  полное
-  описание полей.
+- **_extra_** - это объект который позволяет вам получить полный контроль над выполнением запроса и творить магию.
+  все поля можно условно поделить на три группы: поля атома, реакции и редюсер.
 
-```
-initialStatus?: ILoadingStatus;
-  initialContent?: Result;
-  contentReducers?: {
-    pending?: (params: Payload) => Result | null;
-    fulfilled?: (content: Result, params: Payload) => Result | null;
-    rejected?: (
-      params: Payload,
-      error: string,
-      fetchError?: IFetchError<Result>
-    ) => Result | null;
-    aborted?: (params: Payload) => Result | null;
-  };
-  fulfilledReaction?: (result: Result, params: Payload) => void;
-  rejectedReaction?: (
-    params: Payload,
-    error: string,
-    fetchError?: IFetchError<Result>
-  ) => void;
-  abortReaction?: (params: Payload) => void;
-  resolvedReaction?: (params: Payload) => void;
-  actionReaction?: (params: Payload) => void;
+Разберем все по порядку
+
+- _**initialStatus**_ - статус который можно определить для нашего запроса по умолчанию. Сейчас он определен как **"
+  loading"**, но
+  можно поставить ему любой, на ва вкус. Ведь от статуса многое зависит в нашем интерфейсе и не всегда нам нужен
+  **loading**.
+- _**initialContent**_ - контент поля _atom_. По умолчанию опеределен как _null_ пока не будет возвращено значение из
+  запроса.
+
+Например с использованием этих полей код нашего useUser убдет выглядеть следующим образом
+
+```ts
+export const useUser = create<IUserState>((set, get) => ({
+  ...createSlice(set, get, "userRequest", async (id: string, { signal }) => {
+    return getUserById(id, signal);
+  }, { initialStatus: "init", initialContent: { name: "JOgn Doe" } }),
+}))
 ```
 
+Следующие поля - это реакции, которые вызываются по завершению вашего запроса. Очень удобно использовать для вывода
+оповещний
 
+- fulfilledReaction - реакция на успешное завершение запроса <br>
+- rejectedReaction - реакция на завершение запроса с ошибкой <br>
+- resolvedReaction - реакция которая вызовется после выполнения запроса вне зависимости от результата <br>
+- actionReaction - реакция которая вызовется до начала запрос <br>
+- abortReaction - реакция которая вызовется в случае когда запрос был прерван <br>
+
+```ts
+export const useUser = create<IUserState>((set, get) => ({
+  ...createSlice(set, get, "userRequest", async (id: string, { signal }) => {
+    return getUserById(id, signal);
+  }, {
+    fulfilledReaction: (result: IUser, id: string) => {
+      scheduleRequest.action(id) //выполнить запрос на получение расписания для выбранного пользователя
+    },
+    rejectedReaction: () => {
+      notification.error("Не получилось запросить данные пользователя")
+    },
+    actionReaction: (id: string) => {
+      log("Был запрошен пользователь", id)
+    }
+  }),
+}))
+```
+
+И последнее поле - это _contentReducers_.
+
+- _**contentReducers**_ - с его помощью мы можем полностью управлять данными которые мы помещаем в _content_.
+  Всего есть 4 поля _pending_, _fulfilled_, _rejected_, _aborted_. Каждая из этих функций будет вызвана на своем этапе
+  выполнения запроса. Для чего это нужно? Например, мы хотим заменить данные запросе. Это очень
+  полезно так как нам не неужно писать много логики в теле запроса слайса.
+
+```ts
+export const useUser = create<IUserState>((set, get) => ({
+  ...createSlice(set, get, "userRequest", async (id: string, { signal }) => {
+    return getUserById(id, signal);
+  }, {
+    contentReducers: {
+      pending: () => ({})
+    },
+  }),
+}))
+```
+
+Ранее я упомянул про выполнение запроса на получение расписаниядля пользователя. Давайте напишем стор который будет
+выполнять запрос на получение информации о пользователе и его расписании.
+
+```ts
+interface IUserState {
+  userRequest: ICreateRequest<string, IUser>
+  scheduleRequest: ICreateRequest<string, ISchedule>
+}
+```
+
+и наш стор будет выглядеть следующим образом
+
+```ts
+export const useUser = create<IUserState>((set, get) => ({
+  ...createSlice(set, get, "userRequest", async (id: string) => {
+    return getUserById(id);
+  }),
+  ...createSlice(set, get, "scheduleRequest", async (id: string) => {
+    return getScheduleById(id);
+  }),
+}))
+```
+
+Таким образом мы описали еще один запрос. Расписание полльзователя будет вызвано в том случае если мы получим данные
+самого пользователя. Но вы можете использовать и вызывать запросы в любом интересующем вас порядке
+
+Но что если мы хотим не только запрашивать пользователя и его расписание? Что если мы хотим обновлять данные
+пользователя, создавать нового, удалять расписание для пользователя и тд. То есть нам надо много запросов. Тогда стоит
+разделить наш стор на несколько частей, в нашем случае пользователь и расписания.
+
+```ts
+interface IUserSlice {
+  userRequest: ICreateRequest<string, IUser>;
+  updateUserRequest: ICreateRequest<string, IUser>;
+  ...
+}
+
+export const userSlice = <T extends IUserSlice>(
+  set: SetState<T>,
+  get: GetState<T>,
+): IUserSlice => ({
+  ...createSlice(set, get, "userRequest", async (id: string) => {
+    return getUserById(id);
+  }),
+  ...createSlice(set, get, "updateUserRequest", async (user: IUser) => {
+    return updateUser(user);
+  }, {
+    fulfilledReaction: (result: IUser, payload: IUser) => {
+      get().scheduleRequest.setAtom(result);
+      // мы обновили информацию о пользователе в нашем атоме пользователя м можем работать только с userRequest 
+      // для вывода информации
+    },
+  }),
+  ...
+});
+```
+
+и наши расписания
+
+```ts
+interface IScheduleSlice {
+  scheduleRequest: ICreateRequest<string, IUser>;
+  updateScheduleRequest: ICreateRequest<string, ISchedule>;
+  ...
+}
+
+export const scheduleSlice = <T extends IScheduleSlice>(
+  set: SetState<T>,
+  get: GetState<T>,
+): IUserSlice => ({
+  ...createSlice(set, get, "scheduleRequest", async (id: string) => {
+    return getScheduleById(id);
+  }),
+  ...createSlice(set, get, "updateScheduleRequest", async (schedule: ISchedule) => {
+    return updateSchedule(schedule);
+  },),
+  ...
+});
+```
+
+Тогда наш итоговый стор будет выглядеть следущим образом
+
+```ts
+type State = StateFromFunctions<[typeof scheduleSlice, typeof userSlice]>;
+
+export const useCommonStore = create<State>((set, get) => ({
+  ...scheduleSlice(set, get),
+  ...userSlice(set, get),
+}));
+```
+
+_StateFromFunctions_ - позволяет нам автоматически получить типы наших слайсов без нужды описывать стор целиком
+
+Но что если у нас есть список пользователей и для каждого из них в любой момент нужно запросить его расписание. Мы не
+можем запросить все расписания разом и должны делать это по одиночке. Для этого нам поможет хелпер по выполнению
+групповых запросов _**createGroupRequestSlice**_
 
 ## GroupRequest
+
+Нужен для того чтобы вызывать группу однотипных запросов асинхронно. Например у нас есть список и мы можем открыть
+расписание каждого польователя. Но запрос на расписание будем отправлять только тогда когда потребуется.
 
 ## Modal window
