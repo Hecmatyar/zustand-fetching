@@ -109,12 +109,12 @@ export const useUser = create<IUserState>((set, get) => ({
 Мы использовали небольшой компонент StatusSwitcher чтобы код компонента пользователя оставался более чистым.
 
 ```tsx
-export const User = () => {
+export const User = ({ id }: { id: string }) => {
   const { atom, action } = useUser((state) => state.userRequest);
 
   useEffect(() => {
-    action("id"); // выполняем запрос один раз на данные пользователя по идентификатору "id"
-  }, [action])
+    action(id); // выполняем запрос один раз на данные пользователя по идентификатору "id"
+  }, [action, id])
 
   return (
     <div>
@@ -311,7 +311,7 @@ export const userSlice = <T extends IUserSlice>(
 
 ```ts
 interface IScheduleSlice {
-  scheduleRequest: ICreateRequest<string, IUser>;
+  scheduleRequest: ICreateRequest<string, ISchedule>;
   updateScheduleRequest: ICreateRequest<string, ISchedule>;
   ...
 }
@@ -325,7 +325,7 @@ export const scheduleSlice = <T extends IScheduleSlice>(
   }),
   ...createSlice(set, get, "updateScheduleRequest", async (schedule: ISchedule) => {
     return updateSchedule(schedule);
-  },),
+  }),
   ...
 });
 ```
@@ -350,6 +350,59 @@ _StateFromFunctions_ - позволяет нам автоматически по
 ## GroupRequest
 
 Нужен для того чтобы вызывать группу однотипных запросов асинхронно. Например у нас есть список и мы можем открыть
-расписание каждого польователя. Но запрос на расписание будем отправлять только тогда когда потребуется.
+расписание каждого польователя. Но запрос на расписание будем отправлять только тогда когда потребуется. Обновим наш
+стор в соответсвии с новыми требованиями
+
+```ts
+interface IScheduleSlice {
+  schedulesRequest: ICreateGroupRequests<string, ISchedule>;
+}
+
+export const scheduleSlice = <T extends IScheduleSlice>(
+  set: SetState<T>,
+  get: GetState<T>,
+): IUserSlice => ({
+  ...createGroupRequestSlice(set, get, "schedulesRequest", async (id: string) => {
+    return getScheduleById(id);
+  }),
+});
+```
+
+//описание полей группового запроса
+
+Тогда наш компонент пользователя будет выглядеть следубщим образом
+
+```tsx
+export const User = ({ id }: { id: string }) => {
+  const { atom, action } = useCommon((state) => state.userRequest);
+  const { call } = useCommon((state) => state.schedulesRequest);
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    action(id);
+  }, [action, id])
+
+  return (
+    <div>
+      User name: <b>{atom.content?.name}</b>
+      <button onClick={() => setOpen(true)}>get schedule</button>
+      {open ? <Schedule id={id} /> : <></>}
+    </div>
+  );
+};
+
+const Schedule = ({ id }: { id: string }) => {
+  const { status, content, error } = useCommon((state) => state.schedulesRequest.get(id), shallow);
+
+  useEffect(() => {
+    call([{ key: id, payload: id }]) // отправляем запрос на получение одного расписания
+  }, [action, id])
+
+  return <StatusSwitcher status={status} error={error}>
+    Shedule: {content.days}
+  </StatusSwitcher>
+
+}
+```
 
 ## Modal window
