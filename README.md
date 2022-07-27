@@ -449,6 +449,7 @@ _**createModal**_ - хелпер по созданию всего необход
 
 interface IUserState {
   removeModal: IModalCreator<{ id: string }>;
+  userRequest: ICreateRequest<string, IUser>
 }
 
 export const useScheduleInfoStore = create<IScheduleInfoState>((set, get) => ({
@@ -459,3 +460,44 @@ export const useScheduleInfoStore = create<IScheduleInfoState>((set, get) => ({
 
 Первые три аргумента у createModal такие же как и у _**createSlice**_, а последний - это значение хранилища модального
 окна. Если оно не нужно, то можно просто написать _undefined_.
+
+```tsx
+const Page = () => {
+  return <>
+    <User id={query.id} />
+    <RemoveModal />
+  </>
+}
+
+export const User = ({ id }: { id: string }) => {
+  const { atom, action } = useUser((state) => state.userRequest);
+  const { open } = useUser((state) => state.removeModal);
+
+  return (
+    <div>
+      <button onClick={() => open({ id })}>remove</button>
+    </div>
+  );
+};
+
+export const Modal = () => {
+  const { atom, close } = useUser((state) => state.removeModal);
+  const { action } = useUser((state) => state.removeRequest); //сделаем вид что у нас есть запрос на удаление пользователя
+
+  const handleRemove = usecallback(() => {
+    action(atom.data.id)
+  }, [])
+
+  return (
+    <Modal isOpen={atom.isOpen}>
+      <button onClick={close}>cancel</button>
+      <button onClick={handleRemove}>remove</button>
+    </Modal>
+  );
+};
+```
+
+Вот так мы можем пользоваться нашим хелпером для модальных окон. Теперь нам не нужно переживать за то чтобы пробросить
+необходимые пропсы или объявлять где то состояние модального окна.
+
+//todo сережа закинь описание паарметров и их использования
