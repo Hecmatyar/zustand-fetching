@@ -18,7 +18,7 @@ export interface ICreateGroupRequests<Payload, Result> {
   clear: (key?: string) => void;
 }
 
-export const createGroupRequestSlice = <
+export const createGroupSlice = <
   Payload,
   Result,
   // eslint-disable-next-line
