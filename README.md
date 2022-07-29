@@ -39,10 +39,10 @@ _**ICreateRequest**_ - interface that shows other developers and you that here u
 
 ```ts
 export type ICreateRequest<Payload, Result> = {
-  abort: () => void;
-  clear: () => void;
   action: (params: Payload) => void;
   atom: ContentLoading<Result, Payload>;
+  clear: () => void;
+  abort: () => void;
   setAtom: (value: Partial<Result>, rewrite?: boolean) => void;
 };
 ```
@@ -57,11 +57,11 @@ _**setAtom**_ - set content field in our _atom_. You can use _setAtom_ in the sa
 The _atom_ field from **_ICreateRequest_** is the _ContentLoading_ interface.
 
 ```ts
-export interface ContentLoading<T, P = undefined> {
-  content: T | null;
+export interface ContentLoading<Content, Payload = undefined> {
+  content: Content | null;
   status: ILoadingStatus;
-  error?: string | null;
-  payload?: P | null;
+  payload?: Payload | null;
+  error?: any;
   lastFetchTime: Date | null;
 }
 ```
@@ -75,6 +75,7 @@ _**status**_ - the status of our request. Possible values: "init", "loading", "l
 error"<br>
 _**payload**_ - our payload with which we called the request<br>
 _**error**_ - the error returned by the request<br>
+_**lastFetchTime**_ - Date of last fulfilled request<br>
 
 Congratulations, we have reviewed the interface of our _**createSlice**_. We have a **_createSlice_** method to help
 create a slice in your store.
