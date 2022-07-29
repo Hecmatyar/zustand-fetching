@@ -1,6 +1,6 @@
 {
   "name": "zustand-fetching",
-  "version": "1.0.0",
+  "version": "1.0.0-beta",
   "private": false,
   "description": "Zustand fetching helpers",
   "repository": {
@@ -17,8 +17,6 @@
     "cdn-bundle"
   ],
   "scripts": {
-    "analyze:cra": "(react-app-rewired build|| true) && source-map-explorer 'build/static/js/*.js'",
-    "analyze:cra2": "cra-bundle-analyzer -r analyze.html",
     "analyze:rollup": "rollup --config --analyze",
     "check:lint": "eslint src/**/*.{ts,tsx,js}",
     "check:ts": "tsc --noEmit",
