@@ -314,7 +314,7 @@ export const User = ({ id }: { id: string }) => {
     <div>
       User name: <b>{atom.content?.name}</b>
       <button onClick={() => setIsOpen(true)}>get schedule</button>
-      // написали кнопку которая открывает расписание отдельно взятого пользователя
+      // open user's schedule
       {isOpen ? <Schedule id={id} /> : <></>}
     </div>
   );
