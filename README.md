@@ -26,7 +26,10 @@ When you read the _zustand_ documentation, you see that it recommends using [
 slice-pattern](https://github.com/pmndrs/zustand/blob/main/docs/typescript.md#slices-pattern).
 We have made a special helper for these purposes.
 
-Let's imagine that you have a request that you want to execute. For example, a request for information about a user.
+Let's imagine that you have a request that you want to execute. **_createSlice_** is a special method that will
+automatically create all the necessary environment for working according to our description. For example, a request for
+information about a user.
+
 Describe our store.
 
 ```ts
@@ -54,7 +57,7 @@ _**abort**_ - function to abort the request. Useful in case we leave the page wh
 end of the request.<br>
 _**setAtom**_ - set content field in our _atom_. You can use _setAtom_ in the same way like _zustand_ _set_.
 
-The _atom_ field from **_ICreateRequest_** is the _ContentLoading_ interface.
+The _atom_ field from **_ICreateRequest_** is the _**ContentLoading**_ interface.
 
 ```ts
 export interface ContentLoading<Content, Payload = undefined> {
@@ -77,13 +80,10 @@ _**payload**_ - our payload with which we called the request<br>
 _**error**_ - the error returned by the request<br>
 _**lastFetchTime**_ - Date of last fulfilled request<br>
 
-Congratulations, we have reviewed the interface of our _**createSlice**_. We have a **_createSlice_** method to help
-create a slice in your store.
-**_createSlice_** is a special method that will automatically create all the necessary environment for working according
-to our description
+Congratulations, we have reviewed the interface of our _**createSlice**_.
 
-Let's create a simple store with request to get information about the user. Note that the name passed to _**
-createSlice**_ must match what you defined in _IUserState_.
+Let's create a simple store with request to get information about the user.
+**Please note** that the name passed to _**createSlice**_ must match what you defined in _IUserState_.
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -154,7 +154,7 @@ But that's not all, _**createSlice**_ has much more powerful functionality. Here
 parameters of ```createSlice(set, get, name, payloadCreator, extra)```
 
 - _**set and get**_ are methods from our _zustand_ store <br>
-- _**name**_ - the name of our request. Please note that it must match the one you defined in the type
+- _**name**_ - the name of our request. **Please note** that it must match the one you defined in the type
   your store<br>
 - _**payloadCreator**_ is the function inside which we execute our request. Important _payloadCreator_ has an object
   with field ```signal: AbortSignal``` as the second argument. It can be passed to your _**fetch**_ request and
