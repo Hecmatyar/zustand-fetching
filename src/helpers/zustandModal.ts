@@ -41,7 +41,7 @@ export const modalCreator = <Data, M = unknown>(
     extra?.reaction?.(params);
   };
   const open: IModalCreator<Data, M>["open"] = (...args) => {
-    return initialState || initialState === null
+    return initialState !== undefined
       ? action({ type: "OPEN", payload: args[0] as Data, meta: args[1] })
       : action({ type: "OPEN", payload: initialState, meta: args[0] as M });
   };

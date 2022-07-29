@@ -108,7 +108,7 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-**That's all** 3 lines to describe our request. What can we do with it now? let's see. We used a small _StatusSwitcher_
+**That's all.** 3 lines to describe our request. What can we do with it now? let's see. We used a small _StatusSwitcher_
 component to keep the example component code cleaner.
 
 ```tsx
