@@ -54,7 +54,7 @@ _**abort**_ - function to abort the request. Useful in case we leave the page wh
 end of the request.<br>
 _**setAtom**_ - set content field in our _atom_. You can use _setAtom_ in the same way like _zustand_ _set_.
 
-The _atom_ field from **_CreateRequest** is the _ContentLoading_ interface.
+The _atom_ field from **_ICreateRequest_** is the _ContentLoading_ interface.
 
 ```ts
 export interface ContentLoading<T, P = undefined> {
@@ -71,17 +71,18 @@ export interface ContentLoading<T, P = undefined> {
 > show the process or the error.
 
 _**content**_ - the data returned by request. _null_ - when we haven't received anything yet<br>
-_**status**_ - статус выполнения нашего запроса. Возможные значения: "init", "loading", "loaded", "waiting", "progress"
-, "error"<br>
-_**payload**_ - наш payload с которым мы вызвали запрос<br>
-_**error**_ - ошибка которую вернул запрос<br>
+_**status**_ - the status of our request. Possible values: "init", "loading", "loaded", "waiting", "progress", "
+error"<br>
+_**payload**_ - our payload with which we called the request<br>
+_**error**_ - the error returned by the request<br>
 
-Теперь у нас есть описание запроса. У нас есть метод **_createSlice_** чтобы помочь создать слайс в вашем сторе.
-**_createSlice_** - это специальный метод который позволит автоматически создать все необходимое окружение для работы по
-нашему описанию
+Congratulations, we have reviewed the interface of our _**createSlice**_. We have a **_createSlice_** method to help
+create a slice in your store.
+**_createSlice_** is a special method that will automatically create all the necessary environment for working according
+to our description
 
-Создадим простой стор, в котором будем выполнять запрос на получение информации о пользователе. Обратите внимание на то
-что имя переданное в _**createSlice**_ должно совпадать с тем что вы определили в _IUserState_.
+Let's create a simple store with request to get information about the user. Note that the name passed to _**
+createSlice**_ must match what you defined in _IUserState_.
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -91,11 +92,11 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-Таким образом мы создали запрос на получение данных пользователя. _**getUserById**_ - это ваш запрос на получение
-данных, который должен вернуть тип _IUser_. Это так же значит что вы вожете дописать любую обработку данных вашего
-запроса, воспользоваться своими собственными обработчиками _baseFetch_ или готовыми решениями. Главное возвращаемый
-результат должен совпадать с тем, который вы объявили в ```userRequest: ICreateRequest<string, IUser>```.<br>
-Например, обработаем результат выполнения запроса
+Thus, we created a request for get user data. **getUserById** is your data request, which should return the type _
+IUser_. This also means that you can add any data processing to your request, use your own _baseFetch_ handlers or
+some solutions. The main thing is that the returned result must match the type you declared
+in ```userRequest: ICreateRequest<string, IUser>```.<br>
+For example, let's process the result of a query
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -106,32 +107,33 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-**Это все!**. Нам понадобилось три строчки чтобы описать наш запрос. Что мы теперь можем с ним сделать? Давайте
-посмотрим.
-Мы использовали небольшой компонент _StatusSwitcher_ чтобы код компонента пользователя оставался более чистым.
+**That's all!**. 3 lines to describe our request. What can we do with it now? let's see.
+We used a small _StatusSwitcher_ component to keep the example component code cleaner.
 
 ```tsx
 export const User = ({ id }: { id: string }) => {
   const { atom, action } = useUser((state) => state.userRequest);
 
   useEffect(() => {
-    action(id); // выполняем запрос один раз на данные пользователя по идентификатору "id"
+    action(id); // call request using id param
   }, [action, id])
 
   return (
     <div>
-      <StatusSwitcher status={atom.status} error={atom.error}>
-        User name: <b>{atom.content?.name}</b> // когда данные будут загружены, то мы увидим имя пользователя здесь
+      <StatusSwitcher status={atom.status} error={atom.error.message}>
+        User name: <b>{atom.content?.name}</b> // we will see it when loading will be done
       </StatusSwitcher>
     </div>
   );
 };
 
-const StatusSwitcher = ({
-                          status,
-                          children,
-                          error
-                        }: { status: ILoadingStatus, children: ReactNode, error: string }) => {
+interface ISwitcherProps {
+  status: ILoadingStatus;
+  children: ReactNode;
+  error: string
+}
+
+const StatusSwitcher = ({ status, children, error }: ISwitcherProps) => {
   return <>
     {status === "loaded" && <>{children}</>}
     {status === "loading" && <>loading...</>}
@@ -140,39 +142,39 @@ const StatusSwitcher = ({
 }
 ```
 
-Что мы получили:
+What we got:
 
-- всегда знаем статус выполняемого запроса<br>
-- можем получить данные запроса или ошибку его выполнения<br>
-- имеем простой способ вызова запроса<br>
-- нам потребовалось минимум описаний типов TypeScript и полей в нашем сторе<br>
+- we always know the status of the request<br>
+- we can get request data or its execution error<br>
+- we have a simple way to call a request<br>
+- we needed a minimum of type descriptions and fields in our store<br>
 
-Но это еще не, _**createSlice**_ имеет гораздо более мощный функционал. Вот полное описание параметров _**createSlice**_
+But that's not all, _**createSlice**_ has much more powerful functionality. Here is an advanced description of the
+parameters of ```createSlice(set, get, name, payloadCreator, extra)```
 
-```createSlice(set, get, name, payloadCreator, extra)```
+- _**set and get**_ are methods from our _zustand_ store <br>
+- _**name**_ - the name of our request. Please note that it must match the one you defined in the type
+  your store<br>
+- _**payloadCreator**_ is the function inside which we execute our request. Important _payloadCreator_ has an object
+  with field ```signal: AbortSignal``` as the second argument. It can be passed to your _**fetch**_ request and
+  calling the ```userRequest.abort``` method will cancel the request.<br>
 
-- _**set и get**_ - это методы из нашего _zustand_ стора <br>
-- _**name**_ - название нашего запроса. Обратите внимание что оно должно совпадать с тем которое вы определили в типе
-  вашего стора<br>
-- _**payloadCreator**_ - это функция внутри которой мы выполняем наш запрос. Важно _payloadCreator_ имеет вторым
-  аргументом объект внутри которого есть ```signal: AbortSignal```. Он может быть передан в ваш _**fetch**_ запрос и при
-  вызове метода  ```userRequest.abort``` запрос будет отменен.<br>
-
-Таким образом можно отредактировать предыдущим пример с использованием _abort_
+Thus, you can edit the previous example using _abort_
 
 ```tsx
 const { action, abort } = useUser((state) => state.userRequest);
 
 useEffect(() => {
-  action("id"); // выполняем запрос один раз на данные пользователя по идентификатору "id"
+  action("id"); // call request using id param
 
   return () => {
-    abort() // отменяем запрос когда уходим со страницы пользователя
+    abort() // abort request when we anmout our compoenent
   }
 }, [action])
 ```
 
-Затем передаем _signal_ в наш запрос. Подробнее о том как использовать сигнал в fetch //todo
+Then we pass _signal_ to our request. More about how to use the _signal_
+in [fetch](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/signal)
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -182,8 +184,8 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-- **_extra_** - это объект который позволяет вам получить полный контроль над выполнением запроса и творить магию.
-  Все поля можно условно поделить на три группы: поля атома, реакции и редюсер.
+- **_extra_** is an object that allows you to take full control over the execution of the request and do magic.
+  All fields can be conditionally divided into 3 groups: fields of an atom, reactions and a reducer.
 
 Разберем их по порядку
 
@@ -373,7 +375,7 @@ export const scheduleSlice = <T extends IScheduleSlice>(
 ```tsx
 export const User = ({ id }: { id: string }) => {
   const { atom, action } = useCommon((state) => state.userRequest);
-  const { call } = useCommon((state) => state.schedulesRequest);
+  const call = useCommon((state) => state.schedulesRequest.call);
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
