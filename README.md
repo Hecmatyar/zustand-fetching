@@ -187,15 +187,14 @@ export const useUser = create<IUserState>((set, get) => ({
 - **_extra_** is an object that allows you to take full control over the execution of the request and do magic.
   All fields can be conditionally divided into 3 groups: fields of an atom, reactions and a reducer.
 
-Разберем их по порядку
+- _**initialStatus**_ - the status that can be defined for our request by default. Default value is **"
+  loading"**, but you can define some of LoadingStatus. Indeed, a lot depends on the status in our interface and we do
+  not
+  always need **loading**.
+- _**initialContent**_ - content of the _atom_ field. The default is defined as _null_ until a value is returned from
+  the request.
 
-- _**initialStatus**_ - статус который можно определить для нашего запроса по умолчанию. Сейчас он определен как **"
-  loading"**, но можно поставить ему любой, на ва вкус. Ведь от статуса многое зависит в нашем интерфейсе и не всегда
-  нам нужен **loading**.
-- _**initialContent**_ - контент поля _atom_. По умолчанию опеределен как _null_ пока не будет возвращено значение из
-  запроса.
-
-Например с использованием этих полей код нашего useUser убдет выглядеть следующим образом
+Update our userRequest and use these fields
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -205,14 +204,13 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-Следующие поля - это реакции, которые вызываются по завершению вашего запроса. Очень удобно использовать для вывода
-оповещний
+The following fields are reactions that are called for your request lifecycle. Very useful for alerts.
 
-- fulfilledReaction - реакция на успешное завершение запроса <br>
-- rejectedReaction - реакция на завершение запроса с ошибкой <br>
-- resolvedReaction - реакция которая вызовется после выполнения запроса вне зависимости от результата <br>
-- actionReaction - реакция которая вызовется до начала запроса <br>
-- abortReaction - реакция которая вызовется в случае когда запрос был прерван <br>
+- fulfilledReaction - successful completion of the request <br>
+- rejectedReaction - request was rejected <br>
+- resolvedReaction - the reaction that will be called after the request is executed, regardless of the result <br>
+- actionReaction - the reaction that will be called before the start of the request <br>
+- abortReaction - the reaction that will be called when the request was aborted <br>
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
