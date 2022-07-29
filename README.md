@@ -206,11 +206,11 @@ export const useUser = create<IUserState>((set, get) => ({
 
 The following fields are reactions that are called for your request lifecycle. Very useful for alerts.
 
-- fulfilledReaction - successful completion of the request <br>
-- rejectedReaction - request was rejected <br>
-- resolvedReaction - the reaction that will be called after the request is executed, regardless of the result <br>
-- actionReaction - the reaction that will be called before the start of the request <br>
-- abortReaction - the reaction that will be called when the request was aborted <br>
+- fulfilledReaction - called when request was successful <br>
+- rejectedReaction - called when request was rejected <br>
+- resolvedReaction - called after the request is executed, regardless of the result <br>
+- actionReaction - called before the start of the request <br>
+- abortReaction - called when request was aborted <br>
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -218,24 +218,26 @@ export const useUser = create<IUserState>((set, get) => ({
     return getUserById(id, signal);
   }, {
     fulfilledReaction: (result: IUser, id: string) => {
-      scheduleRequest.action(id) //выполнить запрос на получение расписания для выбранного пользователя
+      scheduleRequest.action(id) //example, call request to get schedule for user
     },
     rejectedReaction: () => {
-      notification.error("Не получилось запросить данные пользователя")
+      notification.error("Some error was accured")
     },
     actionReaction: (id: string) => {
-      log("Был запрошен пользователь", id)
+      log("Log user", id)
     }
   }),
 }))
 ```
 
-И последнее поле - это _contentReducers_.
+And the last field is _contentReducers_.
 
-- _**contentReducers**_ - с его помощью мы можем полностью управлять данными которые мы помещаем в _content_.
-  Всего есть 4 поля _pending_, _fulfilled_, _rejected_, _aborted_. Каждая из этих функций будет вызвана на своем этапе
-  выполнения запроса. Для чего это нужно? Например, мы хотим заменить данные запросе. Это очень
-  полезно так как нам не неужно писать много логики в теле запроса слайса.
+- _**contentReducers**_ - with it we can fully manage the data we put in _content_.
+  There are 4 fields in total _pending_, _fulfilled_, _rejected_, _aborted_. Each of these functions will be called at
+  its own stage of the request execution.
+
+What is it for? For example, we want to replace query data. This is very useful because we don't need to write a lot of
+logic in the slice request body.
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -249,19 +251,15 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-Ранее я упомянул про выполнение запроса на получение расписания для пользователя. Давайте напишем стор который будет
-выполнять запрос на получение информации о пользователе и его расписании.
+We previously made a request to get a _schedule_ for a _user_ as an example. Let's update the _IUserState_ that will
+execute the request to get information about the user and his schedule.
 
 ```ts
 interface IUserState {
   userRequest: ICreateRequest<string, IUser>
   scheduleRequest: ICreateRequest<string, ISchedule>
 }
-```
 
-и наш стор будет выглядеть следующим образом
-
-```ts
 export const useUser = create<IUserState>((set, get) => ({
   ...createSlice(set, get, "userRequest", async (id: string) => {
     return getUserById(id);
@@ -272,88 +270,19 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-Таким образом мы описали еще один запрос. Расписание полльзователя будет вызвано в том случае если мы получим данные
-самого пользователя. Но вы можете использовать и вызывать запросы в любом интересующем вас порядке
-
-Но что если мы хотим не только запрашивать пользователя и его расписание? Что если мы хотим обновлять данные
-пользователя, создавать нового, удалять расписание для пользователя и тд. То есть нам надо много запросов. Тогда стоит
-разделить наш стор на несколько частей, в нашем случае пользователь и расписания. Можно сделать несколько независимых
-зустанд сторов, а можно сделать несколько слайсов
-
-```ts
-interface IUserSlice {
-  userRequest: ICreateRequest<string, IUser>;
-  updateUserRequest: ICreateRequest<string, IUser>;
-  ...
-}
-
-export const userSlice = <T extends IUserSlice>(
-  set: SetState<T>,
-  get: GetState<T>,
-): IUserSlice => ({
-  ...createSlice(set, get, "userRequest", async (id: string) => {
-    return getUserById(id);
-  }),
-  ...createSlice(set, get, "updateUserRequest", async (user: IUser) => {
-    return updateUser(user);
-  }, {
-    fulfilledReaction: (result: IUser, payload: IUser) => {
-      get().scheduleRequest.setAtom(result);
-      // мы обновили информацию о пользователе в нашем атоме пользователя м можем работать только с userRequest 
-      // для вывода информации
-    },
-  }),
-  ...
-});
-```
-
-и наши расписания
-
-```ts
-interface IScheduleSlice {
-  scheduleRequest: ICreateRequest<string, ISchedule>;
-  updateScheduleRequest: ICreateRequest<string, ISchedule>;
-  ...
-}
-
-export const scheduleSlice = <T extends IScheduleSlice>(
-  set: SetState<T>,
-  get: GetState<T>,
-): IUserSlice => ({
-  ...createSlice(set, get, "scheduleRequest", async (id: string) => {
-    return getScheduleById(id);
-  }),
-  ...createSlice(set, get, "updateScheduleRequest", async (schedule: ISchedule) => {
-    return updateSchedule(schedule);
-  }),
-  ...
-});
-```
-
-Тогда наш итоговый стор будет выглядеть следущим образом
-
-```ts
-type State = StateFromFunctions<[typeof scheduleSlice, typeof userSlice]>;
-
-export const useCommonStore = create<State>((set, get) => ({
-  ...scheduleSlice(set, get),
-  ...userSlice(set, get),
-}));
-```
-
-_StateFromFunctions_ - позволяет нам автоматически получить типы наших слайсов без нужды описывать стор целиком
-
-Но что если у нас есть список пользователей и для каждого из них в любой момент нужно запросить его расписание. Мы не
-можем запросить все расписания разом и должны делать это по одиночке. Для этого нам поможет хелпер по выполнению
-групповых запросов _**createGroupSlice**_
+We have described one more request. The user's schedule will be called if we get the user's data. But you can use
+and call _request.action_ in any order you want.
 
 ## GroupRequest
 
-Нужен для того чтобы вызывать группу однотипных запросов асинхронно. Например у нас есть список и мы можем открыть
-расписание каждого польователя. Но запрос на расписание будем отправлять только тогда когда потребуется. Обновим наш
-стор в соответсвии с новыми требованиями
+Sometimes we have a situation where we need to execute a series of single requests asynchronously. For example, we have
+a list of users, and we want to request the schedule of each of them only in the case when the user clicks on the
+button. To do this, the helper for executing group queries _**createGroupSlice**_ will help us.
+
+Update the store in accordance with the new requirements
 
 ```ts
+// created slice only for schedules
 interface IScheduleSlice {
   schedulesRequest: ICreateGroupRequests<string, ISchedule>;
 }
@@ -368,13 +297,13 @@ export const scheduleSlice = <T extends IScheduleSlice>(
 });
 ```
 
-Тогда наш компонент пользователя будет выглядеть следубщим образом
+Then our user component will look like this
 
 ```tsx
 export const User = ({ id }: { id: string }) => {
   const { atom, action } = useCommon((state) => state.userRequest);
   const call = useCommon((state) => state.schedulesRequest.call);
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     action(id);
@@ -383,9 +312,9 @@ export const User = ({ id }: { id: string }) => {
   return (
     <div>
       User name: <b>{atom.content?.name}</b>
-      <button onClick={() => setOpen(true)}>get schedule</button>
+      <button onClick={() => setIsOpen(true)}>get schedule</button>
       // написали кнопку которая открывает расписание отдельно взятого пользователя
-      {open ? <Schedule id={id} /> : <></>}
+      {isOpen ? <Schedule id={id} /> : <></>}
     </div>
   );
 };
@@ -394,88 +323,95 @@ const Schedule = ({ id }: { id: string }) => {
   const { status, content, error } = useCommon((state) => state.schedulesRequest.get(id), shallow);
 
   useEffect(() => {
-    call([{ key: id, payload: id }]) // отправляем запрос на получение одного расписания
+    call([{ key: id, payload: id }]) // call request for user's schedule
   }, [action, id])
 
-  return <StatusSwitcher status={status} error={error}>
-    Shedule: {content.days}
+  return <StatusSwitcher status={status} error={error}> //use StatusSwitcher component again
+    Shedule: {content.days} //for example, show some scheduled days
   </StatusSwitcher>
 
 }
 ```
 
-После выполнения запроса расписание продолжает храниться и может быть использовано повторно бех нужды выполнять запрос.
+After the request is fulfilled, the schedule continues to be stored. For example, can be reused without the need to
+execute the
+request again.
 
-Список полей которые принимает _**createGroupSlice**_ идентичен _**createSlice**_. Отличия в том что создает _**
-createGroupSlice**_
+The list of fields that _**createGroupSlice**_ accepts is identical to _**createSlice**_. The difference is what
+creates _**createGroupSlice**_
 
-- _**requests**_ - объект который содержит все наши запросы. Запросы идентичны тем, что возвращает _**createSlice**_.
-  Обычно нам нет нужды взаимодействовать с ним. Ключами в объекте выступают _key_, которые вы передали в _call_ функции.
-  Следите внимательно чтобы эти значения были уникальными.
-- _**call**_ - функция которая принимает массив объектов типа _IGroupRequestParams_. Это означает что будут вызваны
-  запросы с _payload_ который мы передали и уникальным ключом.
+- _**requests**_ - an object that contains all our requests. The queries are identical to those returned by _**
+  createSlice**_. Usually we don't need to interact with it. The keys in the object are the _key_ that you passed to
+  the _call_ function. Be careful that these values should be unique!
+- _**call**_ - a function that accepts an array of objects of the _IGroupRequestParams_ type. This means that requests
+  will be called with the _payload_ that we passed in and a unique key.
 
 ```ts
 export interface IGroupRequestParams<Payload> {
-  key: string;
+  key: string; // necessarily to store request
   payload: Payload;
 }
 ```
 
-- _**get**_ - имеет не обязательный параметр _key_. Она вернет запрос по _key_ или все запросы в случае отсутствия _key_
-  .
-- _**getContent**_ - вернет контент выбранного запроса по _key_. Нужно в ситуации когда мы работаем только с данными
-  запроса.
-- _**clear**_ - имеет не обязательный параметр _key_. Очистит или весь стор или только выбранный запрос
+- _**get**_ - function that has an optional _key_ parameter. It will return the request by _key_ or all requests if _
+  key_ is undefined.
+- _**getContent**_ - will return the content of the selected request by _key_. It is necessary in a situation when we
+  work only with request data.
+- _**clear**_ - has an optional _key_ parameter. Clears whole store or only the selected query by key.
+-
 
-Теперь у нас есть возможность создавать динамическое количество однотипных запросов без нужды их описания в нашем сторе.
+Now we have the ability to create a dynamic number of requests of the same type without the need to describe them in
+your store.
 
 ## Modal window
 
-_**createModal**_ - хелпер по созданию всего необходимого для работы с модальным окном. Бывает часто нам необходимо
-вызывать
-модальное окно из разных компонентов и передавать данные в него (например, открыть модальное окно для удаления по id).
-
-Напишем стор в котором есть модальное окно
+_**createModal**_ - a helper for creating everything you need to work with a modal window. It happens often that we need
+to call a modal window from different components and pass data to it (for example, open a modal window to delete entity
+by id).
 
 ```ts
 
 interface IUserState {
+  userListRequest: ICreateRequest<void, IUser[]>
   removeModal: IModalCreator<{ id: string }>;
-  userRequest: ICreateRequest<string, IUser>
 }
 
-export const useScheduleInfoStore = create<IScheduleInfoState>((set, get) => ({
+export const useUser = create<IUserState>((set, get) => ({
   ...createModal(set, get, "removeModal", { id: "" }),
+  ...createSlice(set, get, "userListRequest", async () => {
+    return getUserList();
+  }),
 }))
 
 ```
 
-Первые три аргумента у createModal такие же как и у _**createSlice**_, а последний - это значение хранилища модального
-окна. Если оно не нужно, то можно просто написать _undefined_.
+The first three arguments to createModal are the same as those of _**createSlice**_, and the last is the modal's storage
+value. If it is not needed, then you can simply write _undefined_.
 
 ```tsx
 const Page = () => {
+  const { content } = useUser((state) => state.userListRequest.content || [])
+
   return <>
-    <User id={query.id} />
-    <RemoveModal />
+    {content.map(user => <User key={user.id} user={user} />)}
+    <RemoveModal /> // we can put our modal in the root of page
   </>
 }
 
-export const User = ({ id }: { id: string }) => {
-  const { atom, action } = useUser((state) => state.userRequest);
+export const User = ({ user }: { user: IUser }) => {
   const { open } = useUser((state) => state.removeModal);
 
   return (
     <div>
-      <button onClick={() => open({ id })}>remove</button>
+      User name: {user.name}
+      <button onClick={() => open({ id: user.id })}>remove</button>
     </div>
   );
 };
 
 export const Modal = () => {
   const { atom, close } = useUser((state) => state.removeModal);
-  const { action } = useUser((state) => state.removeRequest); //сделаем вид что у нас есть запрос на удаление пользователя
+  const action = useUser((state) => state.removeRequest.action); //сделаем вид что у нас есть запрос на удаление пользователя
 
   const handleRemove = usecallback(() => {
     action(atom.data.id)
@@ -484,13 +420,12 @@ export const Modal = () => {
   return (
     <Modal isOpen={atom.isOpen}>
       <button onClick={close}>cancel</button>
-      <button onClick={handleRemove}>remove</button>
+      <button onClick={handleRemove}>confirm</button>
     </Modal>
   );
 };
 ```
 
-Вот так мы можем пользоваться нашим хелпером для модальных окон. Теперь нам не нужно переживать за то чтобы пробросить
-необходимые пропсы или объявлять где то состояние модального окна.
+Now we don't have to worry about forwarding the necessary props or declaring the state of the modal somewhere.
 
 //todo сережа закинь описание паарметров и их использования

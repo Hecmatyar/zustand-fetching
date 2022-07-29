@@ -8,18 +8,18 @@ export type ILoadingStatus =
   | "progress"
   | "error";
 
-export interface ContentLoading<T, P = undefined> {
-  content: T | null;
+export interface ContentLoading<Content, Payload = undefined> {
+  content: Content | null;
   status: ILoadingStatus;
   error?: any;
   lastFetchTime: Date | null;
-  payload?: P | null;
+  payload?: Payload | null;
 }
 
-export const initialContentLoading = <T, P>(
-  value: T | null,
+export const initialContentLoading = <Content, Payload>(
+  value: Content | null,
   initialStatus?: ILoadingStatus
-): ContentLoading<T, P> => ({
+): ContentLoading<Content, Payload> => ({
   content: value,
   status: initialStatus || "loading",
   error: undefined,
