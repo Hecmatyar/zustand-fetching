@@ -22,8 +22,8 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-When you read the _zustand_ documentation, you see that it recommends using [_
-slice-pattern_](https://github.com/pmndrs/zustand/blob/main/docs/typescript.md#slices-pattern).
+When you read the _zustand_ documentation, you see that it recommends using [
+slice-pattern](https://github.com/pmndrs/zustand/blob/main/docs/typescript.md#slices-pattern).
 We have made a special helper for these purposes.
 
 Let's imagine that you have a request that you want to execute. For example, a request for information about a user.
@@ -36,7 +36,6 @@ interface IUserState {
 ```
 
 _**ICreateRequest**_ - interface that shows other developers and you that here used a helper to create a request.<br>
-What is _**ICreateRequest**_
 
 ```ts
 export type ICreateRequest<Payload, Result> = {
@@ -49,10 +48,11 @@ export type ICreateRequest<Payload, Result> = {
 ```
 
 _**action**_ - function to call our request.<br>
-_**atom**_ is where our result is stored. _ContentLoading_ indicates that this is loading data<br>
-_**clear**_ - clear the storage of our request.<br>
-_**abort**_ - function to abort the request. Useful in case we leave the page where the request was called.<br>
-_**setAtom**_ - set content field in our atom . You can use _setAtom_ in the same way like _zustand_ _set_.
+_**atom**_ - request store. _ContentLoading_ indicates that this is loading data<br>
+_**clear**_ - function to clear the _atom_ field.<br>
+_**abort**_ - function to abort the request. Useful in case we leave the page where the request was called before the
+end of the request.<br>
+_**setAtom**_ - set content field in our _atom_. You can use _setAtom_ in the same way like _zustand_ _set_.
 
 The _atom_ field from **_CreateRequest** is the _ContentLoading_ interface.
 
@@ -66,11 +66,11 @@ export interface ContentLoading<T, P = undefined> {
 }
 ```
 
-> Благодаря такому описанию нам не нужно объвлять статус запроса отдельно, создавать поле для хранения ошибки выполнения
-> запроса и прочее. Мы всегда можем получить контент запроса и вывести его внутри компонента, показать процесс или
-> ошибку.
+> Thanks to _ContentLoading_, we do not need to declare the request status separately, create a field to store the
+> request execution error, etc. We can always get the content of the request and display it inside the component,
+> show the process or the error.
 
-_**content**_ - данные которые ввернул наш запрос. _null_ - когда мы еще ничего не получили<br>
+_**content**_ - the data returned by request. _null_ - when we haven't received anything yet<br>
 _**status**_ - статус выполнения нашего запроса. Возможные значения: "init", "loading", "loaded", "waiting", "progress"
 , "error"<br>
 _**payload**_ - наш payload с которым мы вызвали запрос<br>

@@ -7,7 +7,6 @@ import {
   ILoadingStatus,
   initialContentLoading,
 } from "../interfaces/ContentLoading";
-import { FetchError, IFetchError } from "../interfaces/FetchError";
 
 export type ICreateRequest<Payload, Result> = {
   abort: () => void;
@@ -51,25 +50,21 @@ export const createRequest = <Payload, Result>(
           ? extra.contentReducers.fulfilled(content, params)
           : content,
         status: "loaded",
+        lastFetchTime: new Date(),
       });
       extra?.fulfilledReaction?.(content, params);
     },
-    rejectedReaction: (
-      params: Payload,
-      error: string,
-      fetchError?: IFetchError<Result>
-    ) => {
+    rejectedReaction: (params: Payload, error?: any) => {
       const state = get();
       set({
         ...state,
         content: extra?.contentReducers?.rejected
-          ? extra.contentReducers?.rejected(params, error, fetchError)
+          ? extra.contentReducers?.rejected(params, error)
           : state.content,
         status: "error",
         error,
-        fetchError,
       });
-      extra?.rejectedReaction?.(params, error, fetchError);
+      extra?.rejectedReaction?.(params, error);
     },
     abortReaction: (params: Payload) => {
       const state = get();
@@ -79,8 +74,7 @@ export const createRequest = <Payload, Result>(
           ? extra.contentReducers.aborted(params)
           : null,
         status: extra?.initialStatus || "loading",
-        error: null,
-        fetchError: undefined,
+        error: undefined,
       });
       extra?.abortReaction?.(params);
     },
@@ -121,11 +115,7 @@ export type IExtraArgument = {
 
 interface IReaction<Payload, Result> {
   fulfilledReaction?: (result: Result, params: Payload) => void;
-  rejectedReaction?: (
-    params: Payload,
-    error: string,
-    fetchError?: IFetchError<Result>
-  ) => void;
+  rejectedReaction?: (params: Payload, error?: any) => void;
   abortReaction?: (params: Payload) => void;
   resolvedReaction?: (params: Payload) => void;
   actionReaction?: (params: Payload) => void;
@@ -137,11 +127,7 @@ export type IExtraReaction<Payload, Result> = {
   contentReducers?: {
     pending?: (params: Payload) => Result | null;
     fulfilled?: (content: Result, params: Payload) => Result | null;
-    rejected?: (
-      params: Payload,
-      error: string,
-      fetchError?: IFetchError<Result>
-    ) => Result | null;
+    rejected?: (params: Payload, error?: any) => Result | null;
     aborted?: (params: Payload) => Result | null;
   };
 } & IReaction<Payload, Result>;
@@ -169,15 +155,10 @@ export function createAsyncActions<Payload, Result>(
         extra?.fulfilledReaction?.(result, params);
       })
       .catch((error) => {
-        if (
-          error instanceof FetchError &&
-          error.message === "The user aborted a request."
-        ) {
+        if (error.message === "The user aborted a request.") {
           extra?.abortReaction?.(params);
-        } else if (error instanceof FetchError) {
-          extra?.rejectedReaction?.(params, error.message, error);
         } else if (error instanceof Error) {
-          extra?.rejectedReaction?.(params, error.message);
+          extra?.rejectedReaction?.(params, error);
         } else {
           extra?.rejectedReaction?.(params, "Unknown Failure");
         }

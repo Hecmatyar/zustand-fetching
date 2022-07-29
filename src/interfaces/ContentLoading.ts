@@ -1,4 +1,4 @@
-import { IFetchError } from "./FetchError";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export type ILoadingStatus =
   | "init"
@@ -11,8 +11,7 @@ export type ILoadingStatus =
 export interface ContentLoading<T, P = undefined> {
   content: T | null;
   status: ILoadingStatus;
-  error?: string | null;
-  fetchError?: IFetchError<T>;
+  error?: any;
   lastFetchTime: Date | null;
   payload?: P | null;
 }
@@ -24,7 +23,6 @@ export const initialContentLoading = <T, P>(
   content: value,
   status: initialStatus || "loading",
   error: undefined,
-  fetchError: undefined,
   payload: undefined,
   lastFetchTime: null,
 });
