@@ -14,7 +14,7 @@ export type ICreateRequest<Payload, Result> = {
   clear: () => void;
   action: (params: Payload) => void;
   atom: ContentLoading<Result, Payload>;
-  setAtom: (value: Partial<Result>, rewrite?: boolean) => void;
+  setAtom: (value: Partial<Result>, replace?: boolean) => void;
 };
 
 export const createRequest = <Payload, Result>(
@@ -100,10 +100,10 @@ export const createRequest = <Payload, Result>(
     set(initialState);
   };
 
-  const setAtom = (value: Partial<Result>, rewrite = true) => {
+  const setAtom = (value: Partial<Result>, replace = true) => {
     const state = get();
 
-    const objectContent = rewrite
+    const objectContent = replace
       ? ({ ...value } as Result)
       : ({ ...state.content, ...value } as Result);
 

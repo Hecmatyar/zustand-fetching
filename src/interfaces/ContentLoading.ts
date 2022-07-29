@@ -13,6 +13,7 @@ export interface ContentLoading<T, P = undefined> {
   status: ILoadingStatus;
   error?: string | null;
   fetchError?: IFetchError<T>;
+  lastFetchTime: Date | null;
   payload?: P | null;
 }
 
@@ -25,4 +26,5 @@ export const initialContentLoading = <T, P>(
   error: undefined,
   fetchError: undefined,
   payload: undefined,
+  lastFetchTime: null,
 });

@@ -1,20 +1,18 @@
 # Zustand Fetching Helpers
 
-Представляем несколько вспомогательных функций для работы с **zustand**.
-Ребята, сделавшие **zustand**, проделали отличную работу и нам очень нравится использовать этот стейт менеджер.
+Here are some helper functions for working with **zustand**.
+The creators of **zustand** did a great job and we really enjoy using this state manager.
 
+> What is this library for? We always have standard requests to the backend, so we offer several methods to simplify the
+> work with requests using **zustand**
 
-> Для чего нужна эта библиотека? У нас всегда есть типовые запросы к бэкенду, потому предлагаем несколько методов чтобы
-> упростить работу с запросами и **зустандом**
-
-Проблема: все асинхронные запросы на самом деле весьма однотипны, но мы постоянно сталкиваемся со своей собсвенной
-реализацией от разных разработчиков для каждого запроса. Это создает сложности для понимания работы и легко упустить
-что-то важное. Представляем вам способ снять с себя нагрузку описания запроса и оставить только контроль по его
-выполнению.
+Problem: All asynchronous requests are actually very similar, but we are constantly faced with our own
+implementation from different developers for each request. This makes it difficult to understanding and easy to miss
+something. We present you a way to remove the burden of request's infrastructure and leave only control over fetching.
 
 ## Request
 
-Вот то как могут выглядеть самые простые запросы. Все примеры выполнены с использованием TypeScript
+Here's what the simplest queries might look like. All examples are made using TypeScript
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -24,11 +22,12 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-Когда вы читаете документацию по _zustand_ в сталкиваетесь с тем что там рекомендуют использовать _slice_. Мы сделали
-специальный хелпер для этих целей. //todo ссылка на документацию
+When you read the _zustand_ documentation, you see that it recommends using [_
+slice-pattern_](https://github.com/pmndrs/zustand/blob/main/docs/typescript.md#slices-pattern).
+We have made a special helper for these purposes.
 
-Представим что у вас есть запрос, который вы хотите выполнить. Например, запрос на получение информации о пользователе.
-Опишем наш стор следующим обазом.
+Let's imagine that you have a request that you want to execute. For example, a request for information about a user.
+Describe our store.
 
 ```ts
 interface IUserState {
@@ -36,9 +35,8 @@ interface IUserState {
 }
 ```
 
-_**ICreateRequest**_ - это интерфейс который показывает другим разработчикам и вам что мы используем хелпер по созданию
-запроса.<br>
-Что из себя представляет _**ICreateRequest**_
+_**ICreateRequest**_ - interface that shows other developers and you that here used a helper to create a request.<br>
+What is _**ICreateRequest**_
 
 ```ts
 export type ICreateRequest<Payload, Result> = {
@@ -50,27 +48,21 @@ export type ICreateRequest<Payload, Result> = {
 };
 ```
 
-_**action**_ - означает что мы хотим вызываем наш запрос на выполнение. <br>
-_**atom**_ - место хранения нашего результата. _ContentLoading_ указывает на то что это загружаемые данные<br>
-_**abort**_ - функция по прекращению выполнения запроса. Полезно в случаях когда мы должны выполнить новый запрос не
-дожидаясь окончания выполнения предыдущего (гонка запросов) или мы уходим со страницы на которой был вызван запрос.<br>
-_**clear**_ - очищаем хранилище нашего запроса.<br>
-_**setAtom**_ - записываем какой то контент в атом нашего запроса. Так как в зустанде мы можем использовать _set()_ и
-передавать туда _Partial_ о нашего _State_, то тут можем поступить аналогичным образом.
-Например у нас есть ```content: { name: "John Doe", id: "1" }``` и мы хотим переименовать нашего пользователя на _"John
-Smith"_, тогда мы можем вызвать просто ```setAtom({ name: "John Smith"})``` и значение в
-будет ```content: { name: "John Smith",id: "1"}```. Параметр _rewrite_ нужен для того чтобы передать объект который
-заменит собой полностью значение внутри _content_.
+_**action**_ - function to call our request.<br>
+_**atom**_ is where our result is stored. _ContentLoading_ indicates that this is loading data<br>
+_**clear**_ - clear the storage of our request.<br>
+_**abort**_ - function to abort the request. Useful in case we leave the page where the request was called.<br>
+_**setAtom**_ - set content field in our atom . You can use _setAtom_ in the same way like _zustand_ _set_.
 
-В свою очередь _content_ из **ICreateRequest** представляет из себя следующую структуру _ContentLoading_
+The _atom_ field from **_CreateRequest** is the _ContentLoading_ interface.
 
 ```ts
 export interface ContentLoading<T, P = undefined> {
   content: T | null;
   status: ILoadingStatus;
   error?: string | null;
-  fetchError?: IFetchError<T>;
   payload?: P | null;
+  lastFetchTime: Date | null;
 }
 ```
 
