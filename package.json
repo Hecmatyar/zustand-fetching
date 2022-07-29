@@ -8,26 +8,26 @@
     "url": "https://github.com:hecmatyar/zustand-fetching.git"
   },
   "sideEffects": false,
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "source": "dist/srs/index.ts",
-  "jsnext:main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "cdn-bundle/index.js",
+  "module": "cdn-bundle/index.js",
+  "source": "cdn-bundle/index.ts",
+  "jsnext:main": "cdn-bundle/index.js",
+  "types": "cdn-bundle/index.d.ts",
   "files": [
-    "dist/"
+    "cdn-bundle"
   ],
   "scripts": {
-    "build": "npm run build:ts && npm run build:rollup",
-    "build:rollup": "rollup --config",
-    "build:ts": "del-cli dist && tsc --noEmit false",
-    "check:lint": "eslint src/**/*.{ts,tsx}",
+    "analyze:cra": "(react-app-rewired build|| true) && source-map-explorer 'build/static/js/*.js'",
+    "analyze:cra2": "cra-bundle-analyzer -r analyze.html",
+    "analyze:rollup": "rollup --config --analyze",
+    "check:lint": "eslint src/**/*.{ts,tsx,js}",
     "check:ts": "tsc --noEmit",
-    "fix:lint": "eslint src/**/*.{ts,tsx} --fix",
+    "fix:lint": "eslint src/**/*.{ts,tsx,js} --fix",
     "fix:prettier": "prettier --write src/**/*.{json}",
+    "prod-bundle:rollup": "rollup --config rollup.config.js",
     "publish:package": "del-cli tmp && clean-publish --temp-dir tmp",
     "sort:package": "npx sort-package-json",
-    "test": "jest",
-    "typeDoc": "npx typedoc src/index.ts"
+    "start:rollup": "rollup --config --configDebug -w"
   },
   "husky": {
     "hooks": {
@@ -56,14 +56,16 @@
     ]
   },
   "eslintConfig": {
-    "extends": [
-    ]
+    "extends": []
   },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.16.7",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^3.0.1",
+    "@rollup/plugin-strip": "^2.1.0",
     "@types/react": "17.0.38",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
@@ -85,9 +87,13 @@
     "prettier": "^2.3.1",
     "react": "^17.0.2",
     "rollup": "^2.51.1",
+    "rollup-plugin-analyzer": "^4.0.0",
+    "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-smart-asset": "^2.1.2",
+    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.31.1",
+    "rollup-plugin-visualizer": "^5.7.1",
     "typescript": "^4.7.4",
     "zustand": "^4.0.0"
   },
@@ -102,7 +108,5 @@
   "engineStrict": true,
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
-  },
-  "dependencies": {
   }
 }
