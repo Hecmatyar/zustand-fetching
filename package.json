@@ -8,17 +8,18 @@
     "url": "https://github.com:hecmatyar/zustand-fetching.git"
   },
   "sideEffects": false,
-  "main": "cdn-bundle/index.js",
-  "module": "cdn-bundle/index.js",
-  "source": "cdn-bundle/index.ts",
-  "jsnext:main": "cdn-bundle/index.js",
-  "types": "cdn-bundle/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "source": "dist/index.ts",
+  "jsnext:main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "cdn-bundle"
+    "dist"
   ],
   "scripts": {
     "analyze:rollup": "rollup --config --analyze",
     "check:lint": "eslint src/**/*.{ts,tsx,js}",
+    "build:ts": "del-cli dist && tsc --noEmit false",
     "check:ts": "tsc --noEmit",
     "fix:lint": "eslint src/**/*.{ts,tsx,js} --fix",
     "fix:prettier": "prettier --write src/**/*.{json}",
@@ -104,6 +105,6 @@
   },
   "engineStrict": true,
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "homepage": "https://github.com/Hecmatyar/zustand-fetching"
   }
 }
