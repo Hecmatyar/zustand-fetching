@@ -1,6 +1,6 @@
 {
   "name": "zustand-fetching",
-  "version": "1.0.1-beta",
+  "version": "1.0.2-beta",
   "private": false,
   "description": "Zustand fetching helpers",
   "repository": {
@@ -107,5 +107,6 @@
   "publishConfig": {
     "homepage": "https://github.com/Hecmatyar/zustand-fetching"
   },
-  "license" : "MIT"
+  "license": "MIT",
+  "keywords": "zustand, fetching, state, store, helpers"
 }
