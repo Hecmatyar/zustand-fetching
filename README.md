@@ -246,7 +246,7 @@ export const useUser = create<IUserState>((set, get) => ({
     return getUserById(id, signal);
   }, {
     contentReducers: {
-      pending: () => ({}) //todo сережа опиши что тут к чему
+      pending: () => ({}) //todo work in proggress
     },
   }),
 }))
@@ -429,4 +429,4 @@ export const Modal = () => {
 
 Now we don't have to worry about forwarding the necessary props or declaring the state of the modal somewhere.
 
-//todo сережа закинь описание паарметров и их использования
+//todo work in progress
