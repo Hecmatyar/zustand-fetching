@@ -1,6 +1,6 @@
 {
   "name": "zustand-fetching",
-  "version": "1.0.2-beta",
+  "version": "1.0.3-beta",
   "private": false,
   "description": "Zustand fetching helpers",
   "repository": {
@@ -17,16 +17,12 @@
     "dist"
   ],
   "scripts": {
-    "analyze:rollup": "rollup --config --analyze",
     "check:lint": "eslint src/**/*.{ts,tsx,js}",
     "build:ts": "del-cli dist && tsc --noEmit false",
     "check:ts": "tsc --noEmit",
     "fix:lint": "eslint src/**/*.{ts,tsx,js} --fix",
     "fix:prettier": "prettier --write src/**/*.{json}",
-    "prod-bundle:rollup": "rollup --config rollup.config.js",
-    "publish:package": "del-cli tmp && clean-publish --temp-dir tmp",
-    "sort:package": "npx sort-package-json",
-    "start:rollup": "rollup --config --configDebug -w"
+    "sort:package": "npx sort-package-json"
   },
   "husky": {
     "hooks": {
@@ -59,39 +55,22 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.16.7",
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-replace": "^3.0.1",
-    "@rollup/plugin-strip": "^2.1.0",
-    "@types/react": "17.0.38",
-    "@typescript-eslint/eslint-plugin": "^5.9.1",
-    "@typescript-eslint/parser": "^5.9.1",
-    "babel-eslint": "^10.1.0",
-    "clean-publish": "^3.4.5",
-    "date-fns": "^2.28.0",
-    "del-cli": "^4.0.1",
-    "eslint": "^8.6.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-flowtype": "^8.0.3",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.24.0",
-    "eslint-plugin-react-hooks": "^4.3.0",
+    "@types/react": "^18.0.15",
+    "@typescript-eslint/eslint-plugin": "^5.32.0",
+    "@typescript-eslint/parser": "^5.32.0",
+    "clean-publish": "^4.0.1",
+    "del-cli": "^5.0.0",
+    "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "husky": "^6.0.0",
-    "lint-staged": "^11.0.0",
-    "prettier": "^2.3.1",
-    "react": "^17.0.2",
-    "rollup": "^2.51.1",
-    "rollup-plugin-analyzer": "^4.0.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-smart-asset": "^2.1.2",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.31.1",
-    "rollup-plugin-visualizer": "^5.7.1",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
+    "react": "^18.2.0",
     "typescript": "^4.7.4",
     "zustand": "^4.0.0"
   },
@@ -108,5 +87,11 @@
     "homepage": "https://github.com/Hecmatyar/zustand-fetching"
   },
   "license": "MIT",
-  "keywords": "zustand, fetching, state, store, helpers"
+  "keywords": [
+    "zustand",
+    "fetching",
+    "state",
+    "store",
+    "helpers"
+  ]
 }
