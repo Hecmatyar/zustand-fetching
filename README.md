@@ -74,7 +74,7 @@ export interface ContentLoading<Content, Payload = undefined> {
 - _**content**_ - the data returned by request. _null_ - when we haven't received anything yet<br>
 - _**status**_ - the status of our request. Possible values: "init", "loading", "loaded", "waiting", "progress", "
   error"<br>
-- _**payload**_ - our payload with which we called the request<br>
+- _**payload**_ - our request's payload<br>
 - _**error**_ - the error returned by the request<br>
 - _**lastFetchTime**_ - Date of last fulfilled request<br>
 
