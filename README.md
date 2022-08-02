@@ -204,11 +204,11 @@ export const useUser = create<IUserState>((set, get) => ({
 
 The following fields are reactions that are called for your request lifecycle. Very useful for alerts.
 
-- fulfilledReaction - called when request was successful <br>
-- rejectedReaction - called when request was rejected <br>
-- resolvedReaction - called after the request is executed, regardless of the result <br>
-- actionReaction - called before the start of the request <br>
-- abortReaction - called when request was aborted <br>
+- **_fulfilledReaction_** - called when request was successful <br>
+- **_rejectedReaction_** - called when request was rejected <br>
+- **_resolvedReaction_** - called after the request is executed, regardless of the result <br>
+- **_actionReaction_** - called before the start of the request <br>
+- **_abortReaction_** - called when request was aborted <br>
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
