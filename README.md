@@ -4,7 +4,7 @@ Here are some helper functions for working with **zustand**.
 The creators of **zustand** did a great job and we really enjoy using this state manager.
 
 > What is this library for? We always have standard requests to the backend, so we offer several methods to simplify the
-> work with requests using **zustand**
+> work with requests using **zustand**. All examples are made using _TypeScript_
 
 Problem: All asynchronous requests are actually very similar, but we are constantly faced with our own
 implementation from different developers for each request. This makes it difficult to understanding and easy to miss
@@ -12,7 +12,7 @@ something. We present you a way to remove the burden of request's infrastructure
 
 ## Request
 
-Here's what the simplest queries might look like. All examples are made using TypeScript
+Here's what the simplest queries might look like.
 
 ```ts
 export const useUser = create<IUserState>((set, get) => ({
@@ -28,9 +28,7 @@ We have made a special helper for these purposes.
 
 Let's imagine that you have a request that you want to execute. **_createSlice_** is a special method that will
 automatically create all the necessary environment for working according to our description. For example, a request for
-information about a user.
-
-Describe our store.
+information about a user. Describe our store.
 
 ```ts
 interface IUserState {
@@ -50,12 +48,12 @@ export type ICreateRequest<Payload, Result> = {
 };
 ```
 
-_**action**_ - function to call our request.<br>
-_**atom**_ - request store. _ContentLoading_ indicates that this is loading data<br>
-_**clear**_ - function to clear the _atom_ field.<br>
-_**abort**_ - function to abort the request. Useful in case we leave the page where the request was called before the
-end of the request.<br>
-_**setAtom**_ - set content field in our _atom_. You can use _setAtom_ in the same way like _zustand_ _set_.
+- _**action**_ - function to call our request.<br>
+- _**atom**_ - request store. _ContentLoading_ indicates that this is loading data<br>
+- _**clear**_ - function to clear the _atom_ field.<br>
+- _**abort**_ - function to abort the request. Useful in case we leave the page where the request was called before the
+  end of the request.<br>
+- _**setAtom**_ - set content field in our _atom_. You can use _setAtom_ in the same way like _zustand_ _set_.
 
 The _atom_ field from **_ICreateRequest_** is the _**ContentLoading**_ interface.
 
@@ -73,12 +71,12 @@ export interface ContentLoading<Content, Payload = undefined> {
 > request execution error, etc. We can always get the content of the request and display it inside the component,
 > show the process or the error.
 
-_**content**_ - the data returned by request. _null_ - when we haven't received anything yet<br>
-_**status**_ - the status of our request. Possible values: "init", "loading", "loaded", "waiting", "progress", "
-error"<br>
-_**payload**_ - our payload with which we called the request<br>
-_**error**_ - the error returned by the request<br>
-_**lastFetchTime**_ - Date of last fulfilled request<br>
+- _**content**_ - the data returned by request. _null_ - when we haven't received anything yet<br>
+- _**status**_ - the status of our request. Possible values: "init", "loading", "loaded", "waiting", "progress", "
+  error"<br>
+- _**payload**_ - our payload with which we called the request<br>
+- _**error**_ - the error returned by the request<br>
+- _**lastFetchTime**_ - Date of last fulfilled request<br>
 
 Congratulations, we have reviewed the interface of our _**createSlice**_.
 
@@ -93,20 +91,8 @@ export const useUser = create<IUserState>((set, get) => ({
 }))
 ```
 
-Thus, we created a request for get user data. **getUserById** is your data request, which should return the type _
-IUser_. This also means that you can add any data processing to your request, use your own _baseFetch_ handlers or
-some solutions. The main thing is that the returned result must match the type you declared
-in ```userRequest: ICreateRequest<string, IUser>```.<br>
-For example, let's process the result of a query
-
-```ts
-export const useUser = create<IUserState>((set, get) => ({
-  ...createSlice(set, get, "userRequest", async (id: string) => {
-    const result = await getUserById(id);
-    return { ...result.data, role: "artist" }
-  }),
-}))
-```
+Thus, we created a request for get user data. **getUserById** is your data request, which should return the type _IUser_
+.
 
 **That's all.** 3 lines to describe our request. What can we do with it now? let's see. We used a small _StatusSwitcher_
 component to keep the example component code cleaner.
@@ -150,6 +136,19 @@ What we got:
 - we have a simple way to call a request<br>
 - we needed a minimum of type descriptions and fields in our store<br>
 
+You also can add any data processing to your request, use your own _baseFetch_ handlers or some solutions. The main
+thing is that the returned result must match the type you declared in ```userRequest: ICreateRequest<string, IUser>```
+. For example, let's process the result of a query
+
+```ts
+export const useUser = create<IUserState>((set, get) => ({
+  ...createSlice(set, get, "userRequest", async (id: string) => {
+    const result = await getUserById(id);
+    return { ...result.data, role: "artist" }
+  }),
+}))
+```
+
 But that's not all, _**createSlice**_ has much more powerful functionality. Here is an advanced description of the
 parameters of ```createSlice(set, get, name, payloadCreator, extra)```
 
@@ -187,11 +186,9 @@ export const useUser = create<IUserState>((set, get) => ({
 
 - **_extra_** is an object that allows you to take full control over the execution of the request and do magic.
   All fields can be conditionally divided into 3 groups: fields of an atom, reactions and a reducer.
-
 - _**initialStatus**_ - the status that can be defined for our request by default. Default value is **"
   loading"**, but you can define some of LoadingStatus. Indeed, a lot depends on the status in our interface and we do
-  not
-  always need **loading**.
+  not always need **loading**.
 - _**initialContent**_ - content of the _atom_ field. The default is defined as _null_ until a value is returned from
   the request.
 
