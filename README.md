@@ -124,7 +124,7 @@ const StatusSwitcher = ({ status, children, error }: ISwitcherProps) => {
   return <>
     {status === "loaded" && <>{children}</>}
     {status === "loading" && <>loading...</>}
-    {status === "error" && <>{error}</>}
+    {status === "error" && <>{error.result.message}</>}
   </>
 }
 ```
