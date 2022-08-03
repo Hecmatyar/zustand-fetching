@@ -157,10 +157,8 @@ export function createAsyncActions<Payload, Result>(
       .catch((error) => {
         if (error.message === "The user aborted a request.") {
           extra?.abortReaction?.(params);
-        } else if (error instanceof Error) {
-          extra?.rejectedReaction?.(params, error);
         } else {
-          extra?.rejectedReaction?.(params, "Unknown Failure");
+          extra?.rejectedReaction?.(params, error);
         }
       })
       .finally(() => {
