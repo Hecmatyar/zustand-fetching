@@ -28,7 +28,10 @@ export const createGroupSlice = <
   set: StoreApi<State>["setState"],
   get: StoreApi<State>["getState"],
   name: K,
-  payloadCreator: (params: IGroupRequestParams<Payload>) => Promise<Result>,
+  payloadCreator: (params: {
+    key: string;
+    payload: Payload;
+  }) => Promise<Result>,
   extraArgument?: IExtraReaction<IGroupRequestParams<Payload>, Result>
 ): Record<K, ICreateGroupRequests<Payload, Result>> => {
   const clear = (key?: string) =>
