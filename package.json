@@ -1,6 +1,6 @@
 {
   "name": "zustand-fetching",
-  "version": "1.0.6-beta",
+  "version": "1.0.1",
   "private": false,
   "description": "Zustand fetching helpers",
   "repository": {
