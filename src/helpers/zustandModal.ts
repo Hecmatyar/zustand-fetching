@@ -25,14 +25,14 @@ export const modalCreator = <Data, M = unknown>(
   get: () => IModal<Data>,
   extra?: {
     reaction?: (params: IModalActionType<Data, M>) => any;
-    doNotClearOnClose?: boolean;
+    clearOnClose?: boolean;
   }
 ): IModalCreator<Data, M> => {
   const action: IModalCreator<Data, M>["action"] = (params) => {
     if (params.type === "CLOSE") {
       set({
         isOpen: false,
-        data: extra?.doNotClearOnClose ? get().data : initialState,
+        data: extra?.clearOnClose ? initialState : get().data,
       });
     } else if (params.type === "OPEN") {
       set({
@@ -86,7 +86,7 @@ export const createModal = <
   initialState: Data,
   extra?: {
     reaction?: (params: IModalActionType<Data, M>) => any;
-    doNotClearOnClose?: boolean;
+    clearOnClose?: boolean;
   }
 ): Record<K, IModalCreator<Data, M>> => {
   return {
