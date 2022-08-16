@@ -23,11 +23,17 @@ export const modalCreator = <Data, M = unknown>(
   initialState: Data,
   set: (value: Partial<IModal<Data>>) => void,
   get: () => IModal<Data>,
-  extra?: { reaction?: (params: IModalActionType<Data, M>) => any }
+  extra?: {
+    reaction?: (params: IModalActionType<Data, M>) => any;
+    doNotClearOnClose?: boolean;
+  }
 ): IModalCreator<Data, M> => {
   const action: IModalCreator<Data, M>["action"] = (params) => {
     if (params.type === "CLOSE") {
-      set({ isOpen: false, data: initialState });
+      set({
+        isOpen: false,
+        data: extra?.doNotClearOnClose ? get().data : initialState,
+      });
     } else if (params.type === "OPEN") {
       set({
         isOpen: true,
@@ -78,7 +84,10 @@ export const createModal = <
   get: StoreApi<State>["getState"],
   name: K,
   initialState: Data,
-  extra?: { reaction?: (params: IModalActionType<Data, M>) => any }
+  extra?: {
+    reaction?: (params: IModalActionType<Data, M>) => any;
+    doNotClearOnClose?: boolean;
+  }
 ): Record<K, IModalCreator<Data, M>> => {
   return {
     [name]: modalCreator(
