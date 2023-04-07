@@ -2,14 +2,6 @@ import { create } from "zustand";
 
 import { createModal, IModalCreator } from "../helpers/zustandModal";
 
-interface IState {
-  modal: IModalCreator<{ name: string }>;
-}
-
-export const useStore = create<IState>((set, get) => ({
-  ...createModal(set, get, "modal", { name: "" }),
-}));
-
 const Component = () => {
   const open = useStore((state) => state.modal.open);
 
@@ -26,10 +18,18 @@ const Modal = () => {
 
   return atom.isOpen ? (
     <>
-      name: {atom.data.name}
+      name: {atom.data.name} // this name from action call
       <button onClick={close}>close modal</button>
     </>
   ) : (
     <></>
   );
 };
+
+interface IState {
+  modal: IModalCreator<{ name: string }>;
+}
+
+export const useStore = create<IState>((set, get) => ({
+  ...createModal(set, get, "modal", { name: "" }),
+}));

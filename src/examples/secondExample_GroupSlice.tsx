@@ -9,28 +9,13 @@ import {
 import { StatusSwitcher } from "./common";
 import { useUserStore } from "./firstExample_Slice";
 
-interface IScheduleStore {
-  infoRequest: ICreateGroupRequests<string, ISchedule>;
-}
-
-export const useScheduleStore = create<IScheduleStore>((set, get) => ({
-  ...createGroupSlice(
-    set,
-    get,
-    "infoRequest",
-    async ({ payload, key }: IGroupRequestParams<string>) => {
-      return getScheduleById(payload);
-    }
-  ),
-}));
-
-const User = ({ id }: { id: string }) => {
-  const { atom, action } = useUserStore((state) => state.infoRequest);
+const User = () => {
+  const content = useUserStore((state) => state.infoRequest.atom.content);
 
   return (
     <div>
-      User name: <b>{atom.content?.name}</b>
-      {atom.content?.schedules.map((schedule) => (
+      User name: <b>{content?.name}</b>
+      {content?.schedules.map((schedule) => (
         <Schedule id={schedule} />
       ))}
     </div>
@@ -60,6 +45,21 @@ const Schedule = ({ id }: { id: string }) => {
     </>
   );
 };
+
+interface IScheduleStore {
+  infoRequest: ICreateGroupRequests<string, ISchedule>;
+}
+
+export const useScheduleStore = create<IScheduleStore>((set, get) => ({
+  ...createGroupSlice(
+    set,
+    get,
+    "infoRequest",
+    async ({ payload, key }: IGroupRequestParams<string>) => {
+      return getScheduleById(payload);
+    }
+  ),
+}));
 
 interface ISchedule {
   id: string;

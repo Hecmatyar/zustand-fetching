@@ -4,21 +4,6 @@ import { shallow } from "zustand/shallow";
 import { createList, ICreateList } from "../helpers/zustandList";
 import { createSlice, ICreateRequest } from "../helpers/zustandSlice";
 
-interface IUserState {
-  infoRequest: ICreateRequest<string, IUser>;
-  schedules: ICreateList<ISchedule>;
-  // schedules: ICreateNormalizedList<ISchedule>; or you can use normalized list
-}
-
-export const useStore = create<IUserState>((set, get) => ({
-  ...createSlice(set, get, "infoRequest", async (id: string) => {
-    return getUserById(id);
-  }),
-  ...createList(set, get, "schedules", [] as ISchedule[], {
-    compare: (a, b) => a.id === b.id,
-  }),
-}));
-
 const User = () => {
   const [name, schedules] = useStore(
     (state) => [state.infoRequest.atom.content?.name, state.schedules],
@@ -39,6 +24,22 @@ const User = () => {
     </div>
   );
 };
+
+interface IUserState {
+  infoRequest: ICreateRequest<string, IUser>;
+  schedules: ICreateList<ISchedule>;
+  // or like this
+  // schedules: ICreateNormalizedList<ISchedule>;
+}
+
+export const useStore = create<IUserState>((set, get) => ({
+  ...createSlice(set, get, "infoRequest", async (id: string) => {
+    return getUserById(id);
+  }),
+  ...createList(set, get, "schedules", [] as ISchedule[], {
+    compare: (a, b) => a.id === b.id,
+  }),
+}));
 
 const Schedule = ({ schedule }: { schedule: ISchedule }) => {
   const { remove, update } = useStore((state) => state.schedules);

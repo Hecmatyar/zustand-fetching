@@ -3,10 +3,11 @@
 Here are some helper functions for working with **zustand**.
 The creators of **zustand** did a great job and we really enjoy using this state manager.
 
-> What is this library for? We always have standard requests to the backend, so we offer several methods to simplify the
-> work with requests using **zustand**. All examples are made using _TypeScript_
+> What is this library for? We always have standard requests to the backend or boilerplate, so we offer several
+> methods to simplify the work with **zustand**. All examples are made using _TypeScript_
 
-**Please, look in folder examples!**
+**The best way is to start with [this](https://github.com/Hecmatyar/zustand-fetching/tree/main/src/examples) examples
+and then come back to read the documentation**
 
 Problem: All asynchronous requests are actually very similar, but we are constantly faced with our own
 implementation from different developers for each request. This makes it difficult to understanding and easy to miss

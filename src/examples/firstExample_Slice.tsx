@@ -4,6 +4,24 @@ import { create } from "zustand";
 import { createSlice, ICreateRequest } from "../helpers/zustandSlice";
 import { StatusSwitcher } from "./common";
 
+// Main component
+export const User = ({ id }: { id: string }) => {
+  const { name, status, error } = useUserStore(dataSelector);
+  const getData = useUserStore((state) => state.infoRequest.action);
+
+  useEffect(() => {
+    getData(id); // call request using id param
+  }, [getData, id]);
+
+  return (
+    <div>
+      <StatusSwitcher status={status} error={error}>
+        User name: <b>{name}</b> // we will see it when loading will be done
+      </StatusSwitcher>
+    </div>
+  );
+};
+
 interface IUserState {
   infoRequest: ICreateRequest<string, IUser>;
 }
@@ -11,27 +29,15 @@ interface IUserState {
 export const useUserStore = create<IUserState>((set, get) => ({
   ...createSlice(set, get, "infoRequest", async (id: string) => {
     const result = await getUserById(id);
-    return { ...result, role: "artist" };
+    return { ...result, role: "artist" }; // you can update your data after request
   }),
 }));
 
-// Main component
-export const User = ({ id }: { id: string }) => {
-  const { atom, action } = useUserStore((state) => state.infoRequest);
-
-  useEffect(() => {
-    action(id); // call request using id param
-  }, [action, id]);
-
-  return (
-    <div>
-      <StatusSwitcher status={atom.status} error={atom.error.message}>
-        User name: <b>{atom.content?.name}</b> // we will see it when loading
-        will be done
-      </StatusSwitcher>
-    </div>
-  );
-};
+const dataSelector = (state: IUserState) => ({
+  name: state.infoRequest.atom.content?.name,
+  status: state.infoRequest.atom.status,
+  error: state.infoRequest.atom.error || "some error",
+});
 
 interface IUser {
   id: string;
