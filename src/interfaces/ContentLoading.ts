@@ -12,8 +12,8 @@ export interface ContentLoading<Content, Payload = undefined> {
   content: Content | null;
   status: ILoadingStatus;
   error?: any;
-  lastFetchTime: Date | null;
   payload?: Payload | null;
+  requestId?: string;
 }
 
 export const initialContentLoading = <Content, Payload>(
@@ -24,5 +24,5 @@ export const initialContentLoading = <Content, Payload>(
   status: initialStatus || "loading",
   error: undefined,
   payload: undefined,
-  lastFetchTime: null,
+  requestId: undefined,
 });

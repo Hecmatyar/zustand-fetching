@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
+import { nanoid } from "nanoid";
 import { StoreApi } from "zustand";
 
 import {
@@ -11,9 +10,12 @@ import {
 export type ICreateRequest<Payload, Result> = {
   abort: () => void;
   clear: () => void;
-  action: (params: Payload) => void;
+  action: (
+    params: Payload,
+    extraParams?: { status?: ILoadingStatus; requestId?: string }
+  ) => void;
   atom: ContentLoading<Result, Payload>;
-  setAtom: (value: Partial<Result>, replace?: boolean) => void;
+  setAtom: (value: Partial<Result>, rewrite?: boolean) => void;
 };
 
 export const createRequest = <Payload, Result>(
@@ -31,28 +33,38 @@ export const createRequest = <Payload, Result>(
   );
 
   const reactions = {
-    actionReaction: (params: Payload) => {
+    actionReaction: (
+      params: Payload,
+      extraParams?: { status?: ILoadingStatus; requestId?: string }
+    ) => {
       const state = get();
       set({
         ...state,
         content: extra?.contentReducers?.pending
           ? extra.contentReducers.pending(params)
           : state.content,
-        status: "loading",
+        status: extraParams?.status ?? "loading",
         payload: params,
+        requestId: extraParams?.requestId,
       });
+      extra?.actionReaction?.(params);
     },
-    fulfilledReaction: (content: Result, params: Payload) => {
+    fulfilledReaction: (
+      content: Result,
+      params: Payload,
+      requestId?: string
+    ) => {
       const state = get();
-      set({
-        ...state,
-        content: extra?.contentReducers?.fulfilled
-          ? extra.contentReducers.fulfilled(content, params)
-          : content,
-        status: "loaded",
-        lastFetchTime: new Date(),
-      });
-      extra?.fulfilledReaction?.(content, params);
+      if (requestId === state.requestId) {
+        set({
+          ...state,
+          content: extra?.contentReducers?.fulfilled
+            ? extra.contentReducers.fulfilled(content, params)
+            : content,
+          status: "loaded",
+        });
+        extra?.fulfilledReaction?.(content, params);
+      }
     },
     rejectedReaction: (params: Payload, error?: any) => {
       const state = get();
@@ -94,10 +106,10 @@ export const createRequest = <Payload, Result>(
     set(initialState);
   };
 
-  const setAtom = (value: Partial<Result>, replace = true) => {
+  const setAtom = (value: Partial<Result>, rewrite = false) => {
     const state = get();
 
-    const objectContent = replace
+    const objectContent = rewrite
       ? ({ ...value } as Result)
       : ({ ...state.content, ...value } as Result);
 
@@ -114,11 +126,18 @@ export type IExtraArgument = {
 };
 
 interface IReaction<Payload, Result> {
-  fulfilledReaction?: (result: Result, params: Payload) => void;
+  fulfilledReaction?: (
+    result: Result,
+    params: Payload,
+    requestId?: string
+  ) => void;
   rejectedReaction?: (params: Payload, error?: any) => void;
   abortReaction?: (params: Payload) => void;
   resolvedReaction?: (params: Payload) => void;
-  actionReaction?: (params: Payload) => void;
+  actionReaction?: (
+    params: Payload,
+    extraParams?: { status?: ILoadingStatus; requestId?: string }
+  ) => void;
 }
 
 export type IExtraReaction<Payload, Result> = {
@@ -148,11 +167,15 @@ export function createAsyncActions<Payload, Result>(
     signal = controller.signal;
   };
 
-  const action = (params: Payload) => {
-    extra?.actionReaction?.(params);
+  const action = (
+    params: Payload,
+    extraParams?: { status?: ILoadingStatus; requestId?: string }
+  ) => {
+    const requestId = extraParams?.requestId || nanoid();
+    extra?.actionReaction?.(params, { status: extraParams?.status, requestId });
     payloadCreator(params, { signal })
       .then((result) => {
-        extra?.fulfilledReaction?.(result, params);
+        extra?.fulfilledReaction?.(result, params, requestId);
       })
       .catch((error) => {
         if (error.message === "The user aborted a request.") {

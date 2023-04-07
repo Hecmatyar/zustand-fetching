@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { StoreApi } from "zustand";
 
 export type IModalActionType<Data, M> =
@@ -25,14 +24,14 @@ export const modalCreator = <Data, M = unknown>(
   get: () => IModal<Data>,
   extra?: {
     reaction?: (params: IModalActionType<Data, M>) => any;
-    clearOnClose?: boolean;
+    doNotClearOnClose?: boolean;
   }
 ): IModalCreator<Data, M> => {
   const action: IModalCreator<Data, M>["action"] = (params) => {
     if (params.type === "CLOSE") {
       set({
         isOpen: false,
-        data: extra?.clearOnClose ? initialState : get().data,
+        data: extra?.doNotClearOnClose ? get().data : initialState,
       });
     } else if (params.type === "OPEN") {
       set({
@@ -40,9 +39,16 @@ export const modalCreator = <Data, M = unknown>(
         ...(params.payload ? { data: params.payload } : { data: initialState }),
       });
     } else if (params.type === "TOGGLE") {
-      set({ isOpen: !get().isOpen });
+      set({
+        isOpen: !get().isOpen,
+        data: !get().isOpen
+          ? extra?.doNotClearOnClose
+            ? get().data
+            : initialState
+          : get().data,
+      });
     } else if (params.type === "SET_DATA") {
-      set({ data: params.payload });
+      set({ isOpen: get().isOpen, data: params.payload });
     }
     extra?.reaction?.(params);
   };
@@ -86,7 +92,7 @@ export const createModal = <
   initialState: Data,
   extra?: {
     reaction?: (params: IModalActionType<Data, M>) => any;
-    clearOnClose?: boolean;
+    doNotClearOnClose?: boolean;
   }
 ): Record<K, IModalCreator<Data, M>> => {
   return {

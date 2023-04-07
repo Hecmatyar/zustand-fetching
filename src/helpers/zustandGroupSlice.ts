@@ -13,8 +13,10 @@ export interface ICreateGroupRequests<Payload, Result> {
     ICreateRequest<IGroupRequestParams<Payload>, Result> | undefined
   >;
   call: (params: IGroupRequestParams<Payload>[]) => void;
-  get: (key?: string) => void;
-  getContent: (key: string) => void;
+  get: (
+    key: string
+  ) => ICreateRequest<IGroupRequestParams<Payload>, Result> | undefined;
+  getContent: (key: string) => Result | undefined | null;
   clear: (key?: string) => void;
 }
 
@@ -28,10 +30,7 @@ export const createGroupSlice = <
   set: StoreApi<State>["setState"],
   get: StoreApi<State>["getState"],
   name: K,
-  payloadCreator: (params: {
-    key: string;
-    payload: Payload;
-  }) => Promise<Result>,
+  payloadCreator: (params: IGroupRequestParams<Payload>) => Promise<Result>,
   extraArgument?: IExtraReaction<IGroupRequestParams<Payload>, Result>
 ): Record<K, ICreateGroupRequests<Payload, Result>> => {
   const clear = (key?: string) =>
@@ -104,7 +103,7 @@ export const createGroupSlice = <
   };
 
   const getContent = (key: string) => {
-    return get()[name].requests[key].atom.content;
+    return get()[name].requests[key]?.atom.content;
   };
 
   return {
