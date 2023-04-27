@@ -5,9 +5,9 @@ import {
   createGroupSlice,
   ICreateGroupRequests,
   IGroupRequestParams,
-} from "../helpers/zustandGroupSlice";
-import { StatusSwitcher } from "./common";
-import { useUserStore } from "./firstExample_Slice";
+} from "../../helpers/slices/createGroupSlice";
+import { StatusSwitcher } from "../common";
+import { useUserStore } from "./1_Slice_Request";
 
 const User = () => {
   const content = useUserStore((state) => state.infoRequest.atom.content);

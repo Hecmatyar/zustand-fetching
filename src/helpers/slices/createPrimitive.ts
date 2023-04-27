@@ -6,7 +6,7 @@ export type ICreatePrimitive<VALUE> = {
   clear: () => void;
 };
 
-const primitiveStoreCreator = <VALUE>(
+export const primitiveStoreCreator = <VALUE>(
   set: (v: VALUE) => void,
   initialState: VALUE
 ): ICreatePrimitive<VALUE> => {
@@ -21,18 +21,22 @@ const primitiveStoreCreator = <VALUE>(
   return { value: initialState, set: _set, clear };
 };
 
+export type ICreatePrimitiveParams<VALUE, State> = {
+  patchEffect?: (value: VALUE) => Partial<State>;
+  sideEffect?: (prevValue?: VALUE) => void;
+};
+
 export const createPrimitive = <VALUE, State, K extends keyof State>(
   set: StoreApi<State>["setState"],
-  _: StoreApi<State>["getState"],
+  get: StoreApi<State>["getState"],
   name: K,
   initialState: VALUE,
-  params?: {
-    patchEffect?: (value: VALUE) => Partial<State>;
-    sideEffect?: () => void;
-  }
+  params?: ICreatePrimitiveParams<VALUE, State>
 ): Record<K, ICreatePrimitive<VALUE>> => {
   return {
     [name]: primitiveStoreCreator<VALUE>((value) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const prevValue: VALUE = (get()[name] as any)?.value;
       set((state) => {
         return {
           ...state,
@@ -40,7 +44,7 @@ export const createPrimitive = <VALUE, State, K extends keyof State>(
           [name]: { ...state[name], value },
         };
       });
-      params?.sideEffect?.();
+      params?.sideEffect?.(prevValue);
     }, initialState),
   } as Record<K, ICreatePrimitive<VALUE>>;
 };

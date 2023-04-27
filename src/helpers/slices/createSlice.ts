@@ -5,7 +5,7 @@ import {
   ContentLoading,
   ILoadingStatus,
   initialContentLoading,
-} from "../interfaces/ContentLoading";
+} from "../../interfaces/ContentLoading";
 
 export type ICreateRequest<Payload, Result> = {
   abort: () => void;

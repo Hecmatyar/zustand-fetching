@@ -1,7 +1,10 @@
 import { create } from "zustand";
 
-import { createList, ICreateList } from "../helpers/zustandList";
-import { createPrimitive, ICreatePrimitive } from "../helpers/zustandPrimitive";
+import { createList, ICreateList } from "../../helpers/slices/createList";
+import {
+  createPrimitive,
+  ICreatePrimitive,
+} from "../../helpers/slices/createPrimitive";
 
 const Component = () => {
   const { set, value } = useStore((state) => state.check);

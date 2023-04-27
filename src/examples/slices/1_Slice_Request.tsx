@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { create } from "zustand";
 
-import { createSlice, ICreateRequest } from "../helpers/zustandSlice";
-import { StatusSwitcher } from "./common";
+import { createSlice, ICreateRequest } from "../../helpers/slices/createSlice";
+import { StatusSwitcher } from "../common";
 
 // Main component
 export const User = ({ id }: { id: string }) => {

@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { shallow } from "zustand/shallow";
 
-import { createList, ICreateList } from "../helpers/zustandList";
-import { createSlice, ICreateRequest } from "../helpers/zustandSlice";
+import { createList, ICreateList } from "../../helpers/slices/createList";
+import { createSlice, ICreateRequest } from "../../helpers/slices/createSlice";
 
 const User = () => {
   const [name, schedules] = useStore(

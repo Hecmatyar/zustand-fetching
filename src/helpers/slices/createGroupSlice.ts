@@ -1,6 +1,6 @@
 import { StoreApi } from "zustand";
 
-import { createRequest, ICreateRequest, IExtraReaction } from "./zustandSlice";
+import { createRequest, ICreateRequest, IExtraReaction } from "./createSlice";
 
 export interface IGroupRequestParams<Payload> {
   key: string;

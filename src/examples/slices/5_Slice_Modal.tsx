@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { createModal, IModalCreator } from "../helpers/zustandModal";
+import { createModal, IModalCreator } from "../../helpers/slices/createModal";
 
 const Component = () => {
   const open = useStore((state) => state.modal.open);
