@@ -1,6 +1,6 @@
 import React from "react";
 
-import { createResettable } from "../helpers/resettableStore";
+import { createResettable } from "../../helpers/resettableStore";
 
 interface StoreExample {
   products: string[];

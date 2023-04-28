@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { ILoadingStatus } from "../interfaces/ContentLoading";
+import { ILoadingStatus } from "../interfaces/IContentLoading";
 
 interface ISwitcherProps {
   status: ILoadingStatus;

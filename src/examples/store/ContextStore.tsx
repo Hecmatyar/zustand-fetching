@@ -7,7 +7,7 @@
  *
  * @example
  */
-import { createContextStore } from "../helpers/contextStore";
+import { createContextStore } from "../../helpers/contextStore";
 
 // Define the store
 export const [useCounterStore, CounterStoreProvider] =

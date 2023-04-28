@@ -2,10 +2,10 @@ import { nanoid } from "nanoid";
 import { StoreApi } from "zustand";
 
 import {
-  ContentLoading,
+  IContentLoading,
   ILoadingStatus,
   initialContentLoading,
-} from "../../interfaces/ContentLoading";
+} from "../../interfaces/IContentLoading";
 
 export type ICreateRequest<Payload, Result> = {
   abort: () => void;
@@ -14,7 +14,7 @@ export type ICreateRequest<Payload, Result> = {
     params: Payload,
     extraParams?: { status?: ILoadingStatus; requestId?: string }
   ) => void;
-  atom: ContentLoading<Result, Payload>;
+  atom: IContentLoading<Result, Payload>;
   setAtom: (value: Partial<Result>, rewrite?: boolean) => void;
 };
 
@@ -23,8 +23,8 @@ export const createRequest = <Payload, Result>(
     params: Payload,
     extraArgument?: IExtraArgument
   ) => Promise<Result>,
-  set: (value: ContentLoading<Result, Payload>) => void,
-  get: () => ContentLoading<Result, Payload>,
+  set: (value: IContentLoading<Result, Payload>) => void,
+  get: () => IContentLoading<Result, Payload>,
   extra?: IExtraReaction<Payload, Result>
 ): ICreateRequest<Payload, Result> => {
   const initialState = initialContentLoading<Result, Payload>(
