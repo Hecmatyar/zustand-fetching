@@ -98,3 +98,8 @@ const status = useGroupController(id, (state) => state.status); //First param is
 or
 const requests = useGroupController((state) => state); // Record with all requests
 ```
+
+### Store
+
+Wrappers for [ContextStore](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/store/ContextStore.tsx)
+and [ResettableStore](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/store/ResettableStore.tsx)
