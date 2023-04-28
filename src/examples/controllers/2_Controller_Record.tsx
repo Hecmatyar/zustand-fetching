@@ -16,7 +16,15 @@ const useGetController = leitenRequest(
   "user",
   (value: string) => getUser(value)
 );
-const recordController = leitenRecord(useExampleStore, "user");
+const recordController = leitenRecord(useExampleStore, "user", {
+  sideEffect: () => {
+    // something after
+  },
+  processingBeforeSet: () => {
+    // update data before set
+    return {};
+  },
+});
 const useUpdateController = leitenRequest(
   useExampleStore,
   "user",

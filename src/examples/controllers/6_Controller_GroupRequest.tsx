@@ -22,6 +22,11 @@ export const useGroupController = leitenGroupRequest(
   "cards",
   async (props: ILeitenGroupRequestParams<string>) => {
     return getCard(props.params);
+  },
+  {
+    fulfilled: (result, params) => {
+      console.log("everything ok", result.type, params);
+    },
   }
 );
 

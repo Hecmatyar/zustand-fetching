@@ -14,7 +14,12 @@ const useExampleStore = create<IState>(() => ({
 const useGetController = leitenRequest(
   useExampleStore,
   "user",
-  (value: string, extraArgument) => getUser(value, extraArgument?.signal) // some async function
+  (value: string, extraArgument) => getUser(value, extraArgument?.signal), // some async function
+  {
+    fulfilled: (result, params) => {
+      console.log("everything ok", result.name, params);
+    },
+  }
 );
 
 const Example = () => {
