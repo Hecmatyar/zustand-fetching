@@ -34,7 +34,7 @@ export type ILeitenLoading<Payload, Result> = Omit<
 export const initialLeitenLoading = <Payload, Result>(
   initialStatus?: ILoadingStatus
 ): ILeitenLoading<Payload, Result> => ({
-  status: initialStatus || "loading",
+  status: initialStatus || "init",
   error: undefined,
   payload: undefined,
   requestId: undefined,
