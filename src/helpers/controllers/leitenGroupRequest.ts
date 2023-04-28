@@ -7,6 +7,7 @@ import { shallow } from "zustand/shallow";
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
 import {
   ILeitenLoading,
+  ILoadingStatus,
   initialLeitenLoading,
 } from "../../interfaces/IContentLoading";
 import { useLeitenRequests } from "./hooks/useLeitenRequest";
@@ -19,6 +20,11 @@ import {
 export interface ILeitenGroupRequestParams<Params> {
   key: string;
   params: Params;
+}
+
+interface ICallOptions {
+  status?: ILoadingStatus;
+  requestId?: string;
 }
 
 type UseRequestType<Payload, Result> = <
@@ -45,7 +51,10 @@ type UseGroupRequestType<Payload, Result> = <
 
 export type ILeitenGroupRequest<Payload, Result> = {
   clear: (key?: string) => void;
-  call: (params: ILeitenGroupRequestParams<Payload>[]) => void;
+  call: (
+    params: ILeitenGroupRequestParams<Payload>[],
+    options?: ICallOptions
+  ) => void;
   requests: Record<
     string,
     ILeitenRequest<ILeitenGroupRequestParams<Payload>, Result>
@@ -105,13 +114,16 @@ export const leitenGroupRequest = <
     }
   };
 
-  const call = (params: ILeitenGroupRequestParams<Payload>[]) => {
+  const call = (
+    params: ILeitenGroupRequestParams<Payload>[],
+    options?: ICallOptions
+  ) => {
     params.forEach(({ key, params }) => {
       const request = requests[key];
       const payload = { key, params };
 
       if (request) {
-        request.action(payload);
+        request.action(payload, options);
       } else {
         add(key);
         requests[key].action(payload);

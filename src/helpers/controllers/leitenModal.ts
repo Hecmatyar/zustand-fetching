@@ -18,7 +18,8 @@ export interface ILeitenModal<Data> {
     payload?: Data;
     replace?: boolean;
   }) => void;
-  useOpen: () => [boolean, boolean];
+
+  (): [boolean, boolean];
 }
 
 export const leitenModal = <
@@ -96,5 +97,5 @@ export const leitenModal = <
     );
   };
 
-  return { action, close, open, useOpen };
+  return Object.assign(useOpen, { action, close, open });
 };

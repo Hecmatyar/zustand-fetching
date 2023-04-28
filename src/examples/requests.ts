@@ -15,11 +15,14 @@ export interface IUser {
   cards: string[];
 }
 
-export const getUser = async (_params: void): Promise<IUser> => {
+export const getUser = async (
+  id: string,
+  signal?: AbortSignal
+): Promise<IUser> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const result: IUser = {
-        name: "Name",
+        name: "Name" + id,
         surname: "Surname",
         keywords: [],
         cards: ["1", "2"],
