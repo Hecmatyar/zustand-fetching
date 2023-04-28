@@ -46,7 +46,7 @@ Library well tree shaking and have dependencies from **immer**, **lodash-es** an
 
 ### Options
 
-**leitenRecord**, **leitenPrimitive**, **leitenList** and **leitenNormalized** list have options with callbacks:
+**leitenRecord**, **leitenPrimitive**, **leitenList** and **leitenNormalizedList** have options with callbacks:
 _processingBeforeSet_, _sideEffect_, _patchEffect_. You can use them to extend basic functionality
 
 ### Request
