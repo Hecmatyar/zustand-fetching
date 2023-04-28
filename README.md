@@ -13,6 +13,13 @@ easier to see [examples](https://github.com/Hecmatyar/zustand-fetching/tree/main
 what it is and how it can help. In most cases, helpers will help lighten the store and there will be no need to split it 
 into several parts
 
+Common view
+```tsx
+const useStore = create<IState>(() => ({...}));
+const useController = leiten[Controller](useStore, "dot.nested.path", [options]);
+```
+All actions and states out of your **zustand** store
+
 - [leitenRequest](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/1_Controller_Request.tsx)
   help you to handle request (any async function) and catch errors, return **hook** with params of request, and have
   methods: _action_, _clear_, _abort_ and _set_.
