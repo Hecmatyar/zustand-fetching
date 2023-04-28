@@ -5,9 +5,8 @@
 
 The functions described below are _**well-typed**_ and allow working with _**nested**_ objects. Zustand suggests writing
 custom [slices](https://github.com/pmndrs/zustand/blob/main/docs/guides/slices-pattern.md) and dividing the store into
-several parts. Here are examples of our helpers
-for [slices](https://github.com/Hecmatyar/zustand-fetching/tree/main/src/examples/slices). However, in most cases, we
-need to divide the store into several parts because we add a lot of unnecessary data, which can visually overload
+several parts. However, in most cases, we need to divide the store into several parts because we add a lot of
+unnecessary data, which can visually overload
 it.
 
 I propose several helpers that will take on a significant portion of the typical data work in your store. First, it is
@@ -103,3 +102,8 @@ const requests = useGroupController((state) => state); // Record with all reques
 
 Wrappers for [ContextStore](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/store/ContextStore.tsx)
 and [ResettableStore](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/store/ResettableStore.tsx)
+
+### Slices
+
+Here are examples of our helpers
+for [slices](https://github.com/Hecmatyar/zustand-fetching/tree/main/src/examples/slices)
