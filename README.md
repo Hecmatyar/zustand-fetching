@@ -40,6 +40,8 @@ what it is and how it can help.
 >- Argument of type '"info.keywords.1"' is not assignable to parameter of type '"info.keywords"'.
 >- Argument of type 'string' is not assignable to parameter of type 'never'.
 
+Library well tree shaking and have dependencies from **immer**, **lodash-es** and **nanoid**
+
 ## Advanced
 
 ### Options
