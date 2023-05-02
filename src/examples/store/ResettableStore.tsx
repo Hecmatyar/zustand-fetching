@@ -10,7 +10,7 @@ interface StoreExample {
 const [useStore, StoreProvider] = createResettable<StoreExample>((set) => ({
   products: [],
   setProducts: (myProducts) =>
-    set((state) => ({ ...state, products: myProducts })),
+    set({ products: myProducts }),
 }));
 
 const ResettableComponent = () => {
