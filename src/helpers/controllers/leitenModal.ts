@@ -42,6 +42,7 @@ export const leitenModal = <
     throw new Error("[leitenModal] The defined path does not exist");
   }
   const key = nanoid(10);
+  useLeitenModalManager.getState().action(key, false);
 
   const setContent = (value: Data) => {
     const nextState = produce(store.getState(), (draft) => {

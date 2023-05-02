@@ -6,11 +6,11 @@ export type LeitenModalState = {
   hidden: boolean;
 };
 
-export type LeitenModalManagerState = {
+export interface LeitenModalManagerState {
   modals: Record<string, LeitenModalState>;
   queue: string[];
-  action: (key: string, value: boolean, queue?: boolean) => void;
-};
+  readonly action: (key: string, value: boolean, queue?: boolean) => void;
+}
 
 export const useLeitenModalManager = create<LeitenModalManagerState>(
   (set, get) => ({
