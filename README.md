@@ -18,10 +18,6 @@ Common view
 ```tsx
 const useStore = create<IState>(() => ({ ... }));
 const useController = leiten[Controller](useStore, "dot.nested.path", [options]);
-const Component = () => {
-  const status = useController(state => statet.status);
-  return status !== "loading" ? <>content</> : null;
-}
 ```
 
 All actions and states out of your **zustand** store
