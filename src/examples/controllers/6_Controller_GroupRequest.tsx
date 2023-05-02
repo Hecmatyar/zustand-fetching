@@ -84,6 +84,6 @@ const Statuses = () => {
 
 // you can write selector and merge params of request
 export const selector = leitenMap(
-  ["1", "2"],
+  ["1", "2"], //you can receive keys from requestController, example useController.key;
   ([first, second]) => first.status === "loading" && second.status === "loading"
 );

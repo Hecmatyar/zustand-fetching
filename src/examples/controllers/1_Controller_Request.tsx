@@ -11,7 +11,11 @@ interface IState {
 const useExampleStore = create<IState>(() => ({
   user: null,
 }));
-const useGetController = leitenRequest(useExampleStore, "user", (value: string) => getUser(value));
+const useGetController = leitenRequest(
+  useExampleStore,
+  "user",
+  (value: string) => getUser(value)
+);
 
 const Example = () => {
   const status = useGetController((state) => state.status);

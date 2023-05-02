@@ -89,10 +89,10 @@ export const leitenModal = <
   const useOpen = () => {
     return useLeitenModalManager(
       (state) =>
-        [state.modals[key].open, state.modals[key].hidden] as [
-          boolean,
-          boolean
-        ],
+        [
+          state.modals[key]?.open ?? false,
+          state.modals[key]?.hidden ?? false,
+        ] as [boolean, boolean],
       shallow
     );
   };

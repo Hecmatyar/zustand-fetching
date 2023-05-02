@@ -16,11 +16,12 @@ into several parts
 Common view
 
 ```tsx
-const useStore = create<IState>(() => ({ ... }));
+const useStore = create<IState>(() => ({ ... })); //clean store without actions
 const useController = leiten[Controller](useStore, "dot.nested.path", [options]);
 ```
 
-All actions and states out of your **zustand** store
+All actions and states out of your **zustand**
+store. [Live example](https://codesandbox.io/p/sandbox/bitter-lake-w57ywe?selection=%5B%7B%22endColumn%22%3A11%2C%22endLineNumber%22%3A11%2C%22startColumn%22%3A11%2C%22startLineNumber%22%3A11%7D%5D&file=%2Fsrc%2Frequest%2FRequest.tsx)
 
 - [leitenRequest](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/1_Controller_Request.tsx)
   help you to handle request (any async function) and catch errors, return **hook** with params of request, and have
@@ -57,7 +58,8 @@ Library well tree shaking and have dependencies from **immer**, **lodash-es** an
 **leitenRecord**, **leitenPrimitive**, **leitenList** and **leitenNormalizedList** have options with callbacks:
 _processingBeforeSet_, _sideEffect_, _patchEffect_. You can use them to extend basic functionality
 
-**leitenRequest** and **leitenGrouprRequest** have reactions: _fulfilled_, _rejected_, _abort_, _resolved_ and _action_
+**leitenRequest** and **leitenGrouprRequest** have a useful reactions: _fulfilled_, _rejected_, _abort_, _resolved_
+and _action_
 
 ### Request
 
