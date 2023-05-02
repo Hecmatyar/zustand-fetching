@@ -8,11 +8,13 @@ custom [slices](https://github.com/pmndrs/zustand/blob/main/docs/guides/slices-p
 several parts. However, in most cases, we need to divide the store into several parts because we add a lot of
 unnecessary data, which can visually overload it.
 
-I propose several helpers that will take on a significant portion of the typical data work in your store. First, it is
+I propose several helpers that will take on a significant portion of the typical data work in your store. First of all,
+it is
 easier to see
 [Live example](https://codesandbox.io/p/sandbox/bitter-lake-w57ywe?selection=%5B%7B%22endColumn%22%3A44%2C%22endLineNumber%22%3A49%2C%22startColumn%22%3A44%2C%22startLineNumber%22%3A49%7D%5D&file=%2Fsrc%2Frequest%2FRequest.tsx)
-on _codesandbox.io_ to understand what it is and how it can help. In most cases, helpers will help lighten the store and
-there will be no need to split it into several parts
+on _codesandbox.io_ to understand what it is and how it works. In most cases, leiten controllers will help lighten the
+store and
+there will be no need to split it into several parts.
 
 Common view
 
