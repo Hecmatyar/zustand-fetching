@@ -10,14 +10,20 @@ unnecessary data, which can visually overload it.
 
 I propose several helpers that will take on a significant portion of the typical data work in your store. First, it is
 easier to see [examples](https://github.com/Hecmatyar/zustand-fetching/tree/main/src/examples/controllers) to understand
-what it is and how it can help. In most cases, helpers will help lighten the store and there will be no need to split it 
+what it is and how it can help. In most cases, helpers will help lighten the store and there will be no need to split it
 into several parts
 
 Common view
+
 ```tsx
-const useStore = create<IState>(() => ({...}));
+const useStore = create<IState>(() => ({ ... }));
 const useController = leiten[Controller](useStore, "dot.nested.path", [options]);
+const Component = () => {
+  const status = useController(state => statet.status);
+  return status !== "loading" ? <>content</> : null;
+}
 ```
+
 All actions and states out of your **zustand** store
 
 - [leitenRequest](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/1_Controller_Request.tsx)
@@ -28,9 +34,11 @@ All actions and states out of your **zustand** store
 - [leitenRecord](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/2_Controller_Record.tsx)
   working with objects, have methods _set_, _patch_ and _clear_.
 - [leitenPrimitive](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/3_Controller_Primitive.tsx)
-  working with data like with primitive value, but it can be object, function or primitives. Have methods: _set_ and _clear_.
+  working with data like with primitive value, but it can be object, function or primitives. Have methods: _set_ and _
+  clear_.
 - [leitenList](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/4_Controller_List.tsx)
-  working with array, have methods: _set_, _clear_, _add_, _update_, _remove_, _toggle_ and _filter_. If array item is an
+  working with array, have methods: _set_, _clear_, _add_, _update_, _remove_, _toggle_ and _filter_. If array item is
+  an
   object then need to set **compare** function in the controller's options (third parameter).
 - [leitenNormalizedList](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/4_Controller_List.tsx)
   is the same as leitenList but working with normalized state.
