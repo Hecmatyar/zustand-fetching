@@ -34,8 +34,8 @@ store. [Examples](https://github.com/Hecmatyar/zustand-fetching/tree/main/src/ex
 - [leitenRecord](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/2_Controller_Record.tsx)
   working with objects, have methods _set_, _patch_ and _clear_.
 - [leitenPrimitive](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/3_Controller_Primitive.tsx)
-  working with data like with primitive value, but it can be object, function or primitives. Have methods: _set_ and _
-  clear_.
+  working with data like with primitive value, but it can be object, function or primitives.
+  Have methods: _set_ and _clear_.
 - [leitenList](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/4_Controller_List.tsx)
   working with array, have methods: _set_, _clear_, _add_, _update_, _remove_, _toggle_ and _filter_. If array item is
   an
