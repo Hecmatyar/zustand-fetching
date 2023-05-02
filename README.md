@@ -21,7 +21,9 @@ const useController = leiten[Controller](useStore, "dot.nested.path", [options])
 ```
 
 All actions and states out of your **zustand**
-store. [Live example](https://codesandbox.io/p/sandbox/bitter-lake-w57ywe?selection=%5B%7B%22endColumn%22%3A11%2C%22endLineNumber%22%3A11%2C%22startColumn%22%3A11%2C%22startLineNumber%22%3A11%7D%5D&file=%2Fsrc%2Frequest%2FRequest.tsx)
+store.
+Check [Live example](https://codesandbox.io/p/sandbox/bitter-lake-w57ywe?selection=%5B%7B%22endColumn%22%3A44%2C%22endLineNumber%22%3A49%2C%22startColumn%22%3A44%2C%22startLineNumber%22%3A49%7D%5D&file=%2Fsrc%2Frequest%2FRequest.tsx)
+on codesandbox.io
 
 - [leitenRequest](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/1_Controller_Request.tsx)
   help you to handle request (any async function) and catch errors, return **hook** with params of request, and have

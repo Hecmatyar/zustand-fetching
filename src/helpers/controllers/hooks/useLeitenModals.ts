@@ -18,8 +18,7 @@ export const useLeitenModalManager = create<LeitenModalManagerState>(
     queue: [],
     action: (key, value, replace) => {
       const nextState = produce(get(), (draft) => {
-        draft.modals[key].open = value;
-        draft.modals[key].hidden = false;
+        draft.modals[key] = { open: value, hidden: false };
         let queue = draft.queue.filter((modal) => modal !== key);
 
         if (!replace) {
@@ -33,14 +32,9 @@ export const useLeitenModalManager = create<LeitenModalManagerState>(
           });
           queue = [];
         }
+
         if (value) {
           queue.push(key);
-        }
-
-        const last = queue[queue.length - 1];
-        if (last) {
-          draft.modals[last].open = true;
-          draft.modals[last].hidden = false;
         }
         draft.queue = queue;
       });
