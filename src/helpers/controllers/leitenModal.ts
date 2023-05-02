@@ -6,7 +6,10 @@ import { UseBoundStore } from "zustand/react";
 import { shallow } from "zustand/shallow";
 
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
-import { useLeitenModalManager } from "./hooks/useLeitenModals";
+import {
+  leitenModalManagerAction,
+  useLeitenModalManager,
+} from "./hooks/useLeitenModals";
 
 type ActionType = "OPEN" | "CLOSE" | "TOGGLE" | "SET_DATA";
 
@@ -42,7 +45,6 @@ export const leitenModal = <
     throw new Error("[leitenModal] The defined path does not exist");
   }
   const key = nanoid(10);
-  useLeitenModalManager.getState().action(key, false);
 
   const setContent = (value: Data) => {
     const nextState = produce(store.getState(), (draft) => {
@@ -52,7 +54,7 @@ export const leitenModal = <
   };
 
   const setState = (value: boolean, replace?: boolean) => {
-    useLeitenModalManager.getState().action(key, value, replace);
+    leitenModalManagerAction(key, value, replace);
   };
 
   const getState = () => useLeitenModalManager.getState().modals[key];
