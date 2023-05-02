@@ -27,25 +27,19 @@ interface ICallOptions {
   requestId?: string;
 }
 
-type UseRequestType<Payload, Result> = <
-  U = ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
->(
+type LeitenState<Payload, Result> = ILeitenLoading<
+  ILeitenGroupRequestParams<Payload>,
+  Result
+>;
+
+type UseRequestType<Payload, Result> = <U = LeitenState<Payload, Result>>(
   key: string,
-  selector?: (
-    state: ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-  ) => U,
+  selector?: (state: LeitenState<Payload, Result>) => U,
   equals?: (a: U, b: U) => boolean
 ) => U;
 
-type UseGroupRequestType<Payload, Result> = <
-  U = ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
->(
-  selector?: (
-    state: Record<
-      string,
-      ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-    >
-  ) => U,
+type UseGroupRequestType<Payload, Result> = <U = LeitenState<Payload, Result>>(
+  selector?: (state: Record<string, LeitenState<Payload, Result>>) => U,
   equals?: (a: U, b: U) => boolean
 ) => U;
 
@@ -59,8 +53,6 @@ export type ILeitenGroupRequest<Payload, Result> = {
     string,
     ILeitenRequest<ILeitenGroupRequestParams<Payload>, Result>
   >;
-  // useRequest: UseRequestType<Payload, Result>;
-  // useGroupRequest: UseGroupRequestType<Payload, Result>;
 } & UseRequestType<Payload, Result> &
   UseGroupRequestType<Payload, Result>;
 
@@ -159,12 +151,7 @@ export const leitenGroupRequest = <
     equals
   ) => {
     return useLeitenRequests(
-      (
-        state: Record<
-          string,
-          ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-        >
-      ) => {
+      (state: Record<string, LeitenState<Payload, Result>>) => {
         const keys = Object.entries(requests).map(([id, value]) => ({
           id,
           key: value.key,
@@ -179,47 +166,21 @@ export const leitenGroupRequest = <
     );
   };
 
-  function hook<
-    Payload,
-    Result,
-    U = ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-  >(
+  function hook<Payload, Result, U = LeitenState<Payload, Result>>(
     key: string,
-    selector?: (
-      state: ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-    ) => U,
+    selector?: (state: LeitenState<Payload, Result>) => U,
     equals?: (a: U, b: U) => boolean
   ): U;
-  function hook<
-    Payload,
-    Result,
-    U = ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-  >(
-    selector?: (
-      state: Record<
-        string,
-        ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-      >
-    ) => U,
+  function hook<Payload, Result, U = LeitenState<Payload, Result>>(
+    selector?: (state: Record<string, LeitenState<Payload, Result>>) => U,
     equals?: (a: U, b: U) => boolean
   ): U;
-  function hook<
-    Payload,
-    Result,
-    U = ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-  >(
+  function hook<Payload, Result, U = LeitenState<Payload, Result>>(
     first?:
       | string
-      | ((
-          state: Record<
-            string,
-            ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-          >
-        ) => U),
+      | ((state: Record<string, LeitenState<Payload, Result>>) => U),
     second?:
-      | ((
-          state: ILeitenLoading<ILeitenGroupRequestParams<Payload>, Result>
-        ) => U)
+      | ((state: LeitenState<Payload, Result>) => U)
       | ((a: U, b: U) => boolean),
     third?: (a: U, b: U) => boolean
   ): U {
