@@ -36,6 +36,12 @@ export const useLeitenModalManager = create<LeitenModalManagerState>(
         if (value) {
           queue.push(key);
         }
+
+        const last = queue[queue.length - 1];
+        if (last) {
+          draft.modals[last].open = true;
+          draft.modals[last].hidden = false;
+        }
         draft.queue = queue;
       });
       set(nextState);
