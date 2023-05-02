@@ -8,7 +8,7 @@ import { shallow } from "zustand/shallow";
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
 import {
   leitenModalManagerAction,
-  useLeitenModalManager,
+  useLeitenModalStack,
 } from "./hooks/useLeitenModals";
 
 type ActionType = "OPEN" | "CLOSE" | "TOGGLE" | "SET_DATA";
@@ -57,7 +57,7 @@ export const leitenModal = <
     leitenModalManagerAction(key, value, replace);
   };
 
-  const getState = () => useLeitenModalManager.getState().modals[key];
+  const isOpen = () => useLeitenModalStack.getState().queue.includes(key);
 
   const action = (params: {
     type: ActionType;
@@ -73,8 +73,8 @@ export const leitenModal = <
       setState(true, params.replace);
       params.payload && setContent(params.payload);
     } else if (params.type === "TOGGLE") {
-      setState(!getState());
-      if (!getState() && extra?.clearOnClose) {
+      setState(!isOpen());
+      if (!isOpen() && extra?.clearOnClose) {
         setContent(initialData);
       }
     } else if (params.type === "SET_DATA") {
@@ -90,14 +90,11 @@ export const leitenModal = <
   const close = () => action({ type: "CLOSE" });
 
   const useOpen = () => {
-    return useLeitenModalManager(
-      (state) =>
-        [
-          state.modals[key]?.open ?? false,
-          state.modals[key]?.hidden ?? false,
-        ] as [boolean, boolean],
-      shallow
-    );
+    return useLeitenModalStack((state) => {
+      const open = state.queue.includes(key);
+      const hidden = open && state.queue[state.queue.length - 1] !== key;
+      return [open, hidden] as [boolean, boolean];
+    }, shallow);
   };
 
   return Object.assign(useOpen, { action, close, open });
