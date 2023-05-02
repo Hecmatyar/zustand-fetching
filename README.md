@@ -9,9 +9,10 @@ several parts. However, in most cases, we need to divide the store into several 
 unnecessary data, which can visually overload it.
 
 I propose several helpers that will take on a significant portion of the typical data work in your store. First, it is
-easier to see [examples](https://github.com/Hecmatyar/zustand-fetching/tree/main/src/examples/controllers) to understand
-what it is and how it can help. In most cases, helpers will help lighten the store and there will be no need to split it
-into several parts
+easier to see
+[Live example](https://codesandbox.io/p/sandbox/bitter-lake-w57ywe?selection=%5B%7B%22endColumn%22%3A44%2C%22endLineNumber%22%3A49%2C%22startColumn%22%3A44%2C%22startLineNumber%22%3A49%7D%5D&file=%2Fsrc%2Frequest%2FRequest.tsx)
+on _codesandbox.io_ to understand what it is and how it can help. In most cases, helpers will help lighten the store and
+there will be no need to split it into several parts
 
 Common view
 
@@ -21,9 +22,7 @@ const useController = leiten[Controller](useStore, "dot.nested.path", [options])
 ```
 
 All actions and states out of your **zustand**
-store.
-Check [Live example](https://codesandbox.io/p/sandbox/bitter-lake-w57ywe?selection=%5B%7B%22endColumn%22%3A44%2C%22endLineNumber%22%3A49%2C%22startColumn%22%3A44%2C%22startLineNumber%22%3A49%7D%5D&file=%2Fsrc%2Frequest%2FRequest.tsx)
-on codesandbox.io
+store. [Examples](https://github.com/Hecmatyar/zustand-fetching/tree/main/src/examples/controllers)
 
 - [leitenRequest](https://github.com/Hecmatyar/zustand-fetching/blob/main/src/examples/controllers/1_Controller_Request.tsx)
   help you to handle request (any async function) and catch errors, return **hook** with params of request, and have
