@@ -1,7 +1,6 @@
 import { produce } from "immer";
 import { get, set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
-import { UseBoundStore } from "zustand/react";
 
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
 
@@ -21,12 +20,13 @@ export const leitenRecord = <
   Store extends object,
   P extends DotNestedKeys<Store>
 >(
-  store: UseBoundStore<StoreApi<Store>>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  path: DotNestedValue<Store, P> extends Array<any>
-    ? never
-    : DotNestedValue<Store, P> extends object | null
-    ? P
+  store: StoreApi<Store>,
+  path: P extends string
+    ? DotNestedValue<Store, P> extends Array<any>
+      ? never
+      : DotNestedValue<Store, P> extends object
+      ? P
+      : never
     : never,
   effects?: ILeitenRecordEffects<DotNestedValue<Store, P>, Store>
 ): ILeitenRecord<DotNestedValue<Store, P>> => {

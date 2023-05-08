@@ -2,7 +2,6 @@ import { produce } from "immer";
 import { get, set } from "lodash-es";
 import { nanoid } from "nanoid";
 import { StoreApi } from "zustand";
-import { UseBoundStore } from "zustand/react";
 import { shallow } from "zustand/shallow";
 
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
@@ -29,7 +28,7 @@ export const leitenModal = <
   Store extends object,
   P extends DotNestedKeys<Store>
 >(
-  store: UseBoundStore<StoreApi<Store>>,
+  store: StoreApi<Store>,
   path: P extends string ? P : never,
   extra?: {
     reaction?: (params: {
@@ -57,8 +56,6 @@ export const leitenModal = <
     leitenModalManagerAction(key, value, replace);
   };
 
-  const isOpen = () => useLeitenModalStack.getState().queue.includes(key);
-
   const action = (params: {
     type: ActionType;
     payload?: Data;
@@ -73,6 +70,8 @@ export const leitenModal = <
       setState(true, params.replace);
       params.payload && setContent(params.payload);
     } else if (params.type === "TOGGLE") {
+      const isOpen = () => useLeitenModalStack.getState().queue.includes(key);
+
       setState(!isOpen());
       if (!isOpen() && extra?.clearOnClose) {
         setContent(initialData);

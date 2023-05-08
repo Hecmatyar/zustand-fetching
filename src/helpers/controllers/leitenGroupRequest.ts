@@ -1,7 +1,6 @@
 import { produce } from "immer";
 import { set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
-import { UseBoundStore } from "zustand/react";
 import { shallow } from "zustand/shallow";
 
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
@@ -67,7 +66,7 @@ export const leitenGroupRequest = <
   Payload,
   Result
 >(
-  store: UseBoundStore<StoreApi<Store>>,
+  store: StoreApi<Store>,
   path: P extends string
     ? DotNestedValue<Store, P> extends Record<string, Result> | null
       ? P
@@ -189,6 +188,14 @@ export const leitenGroupRequest = <
     } else {
       return useGroupRequest(first as any, second as any) as any;
     }
+  }
+
+  const resettable =
+    (store.getState() as any)["_resettableLifeCycle"] !== undefined;
+  if (resettable) {
+    store.subscribe((next) => {
+      if ((next as any)["_resettableLifeCycle"] === false) clear();
+    });
   }
 
   return Object.assign(hook, { clear, call, requests });

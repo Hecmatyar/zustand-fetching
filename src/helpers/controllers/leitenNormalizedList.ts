@@ -1,7 +1,6 @@
 import { produce } from "immer";
 import { get, set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
-import { UseBoundStore } from "zustand/react";
 
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
 import { defaultCompareList } from "../slices";
@@ -14,7 +13,7 @@ export const leitenNormalizedList = <
   Store extends object,
   P extends DotNestedKeys<Store>
 >(
-  store: UseBoundStore<StoreApi<Store>>,
+  store: StoreApi<Store>,
   path: P extends string
     ? DotNestedValue<Store, P> extends Record<string, unknown>
       ? P

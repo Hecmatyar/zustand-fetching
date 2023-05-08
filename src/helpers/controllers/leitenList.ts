@@ -1,7 +1,6 @@
 import { produce } from "immer";
 import { get, isArray, set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
-import { UseBoundStore } from "zustand/react";
 
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
 import { defaultCompareList, ICreateList } from "../slices";
@@ -22,7 +21,7 @@ export const leitenList = <
   Store extends object,
   P extends DotNestedKeys<Store>
 >(
-  store: UseBoundStore<StoreApi<Store>>,
+  store: StoreApi<Store>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path: P extends string
     ? DotNestedValue<Store, P> extends Array<any> | null

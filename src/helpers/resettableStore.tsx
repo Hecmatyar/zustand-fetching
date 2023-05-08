@@ -9,18 +9,26 @@ export const createResettable = <STATE,>(
   state: StateCreator<STATE>,
   getState?: () => STATE
 ) => {
-  const useStore = create<STATE>(state);
+  const useStore = create<STATE>(
+    Object.assign(state, { _resettableLifeCycle: false })
+  );
   const initialState = useStore.getState();
 
   const ResetStoreProvider = ({ children }: IProps) => {
     useEffect(() => {
+      const reset = { _resettableLifeCycle: true } as STATE;
+      useStore.setState(reset);
+
       return () => {
-        useStore.setState(getState ? getState() : initialState, true);
+        useStore.setState(
+          { _resettableLifeCycle: false, ...(getState?.() || initialState) },
+          true
+        );
       };
     }, []);
 
     return <>{children}</>;
   };
 
-  return [useStore, ResetStoreProvider] as [typeof useStore, FC<IProps>];
+  return [useStore, ResetStoreProvider] as [typeof useStore, FC];
 };

@@ -1,8 +1,7 @@
 import { produce } from "immer";
-import { get, set } from "lodash-es";
+import { get, isEqual, set } from "lodash-es";
 import { nanoid } from "nanoid";
 import { StoreApi } from "zustand";
-import { UseBoundStore } from "zustand/react";
 import { shallow } from "zustand/shallow";
 
 import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
@@ -41,6 +40,7 @@ export interface ILeitenRequestOptions<Payload, Result> {
     extraParams?: { status?: ILoadingStatus; requestId?: string }
   ) => void;
   initialStatus?: ILoadingStatus;
+  optimisticUpdate?: (params: Payload) => Result;
 }
 
 export const leitenRequest = <
@@ -49,7 +49,7 @@ export const leitenRequest = <
   Payload,
   Result
 >(
-  store: UseBoundStore<StoreApi<Store>>,
+  store: StoreApi<Store>,
   path: P extends string
     ? Result extends void
       ? P
@@ -105,6 +105,8 @@ export const leitenRequest = <
     }
   };
 
+  let prevContent: Result = getContent();
+
   const reactions = {
     actionReaction: (
       params: Payload,
@@ -117,6 +119,11 @@ export const leitenRequest = <
         requestId: extraParams?.requestId,
       });
       options?.action?.(params);
+      prevContent = getContent();
+
+      if (options?.optimisticUpdate) {
+        setContent(options.optimisticUpdate(params));
+      }
     },
     fulfilledReaction: (
       content: Result,
@@ -127,7 +134,12 @@ export const leitenRequest = <
       if (requestId === state.requestId) {
         // unstable_batchedUpdates(() => {
         setState({ ...state, status: "loaded" });
-        setContent(content);
+        if (
+          content !== undefined &&
+          (!options?.optimisticUpdate || !isEqual(prevContent, content))
+        ) {
+          setContent(content);
+        }
         // });
         options?.fulfilled?.(content, params);
       }
@@ -136,10 +148,16 @@ export const leitenRequest = <
       const state = getState();
       setState({ ...state, status: "error", error });
       options?.rejected?.(params, error);
+      if (options?.optimisticUpdate) {
+        setContent(prevContent);
+      }
     },
     abortReaction: (params: Payload) => {
       setState(initialState);
       options?.abort?.(params);
+      if (options?.optimisticUpdate) {
+        setContent(prevContent);
+      }
     },
     resolvedReaction: (params: Payload) => {
       options?.resolved?.(params);
@@ -165,6 +183,14 @@ export const leitenRequest = <
       shallow || equals
     );
   };
+
+  const resettable =
+    (store.getState() as any)["_resettableLifeCycle"] !== undefined;
+  if (resettable) {
+    store.subscribe((next) => {
+      if ((next as any)["_resettableLifeCycle"] === false) clear();
+    });
+  }
 
   return Object.assign(useRequest, {
     abort: _abort,
