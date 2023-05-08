@@ -24,7 +24,7 @@ export const leitenRecord = <
   path: P extends string
     ? DotNestedValue<Store, P> extends Array<any>
       ? never
-      : DotNestedValue<Store, P> extends object
+      : DotNestedValue<Store, P> extends object | null
       ? P
       : never
     : never,

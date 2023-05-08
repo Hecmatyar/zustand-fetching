@@ -7,35 +7,31 @@ interface StoreExample {
   setProducts: (value: string[]) => void;
 }
 
-const [useStore, StoreProvider] = createResettable<StoreExample>((set) => ({
-  products: [],
-  setProducts: (myProducts) =>
-    set({ products: myProducts }),
-}));
+const [useStore, ResetStoreProvider] = createResettable<StoreExample>(
+  (set) => ({
+    products: [],
+    setProducts: (myProducts) =>
+      set((state) => ({ ...state, products: myProducts })),
+  })
+);
 
-const ResettableComponent = () => {
+export const ResettablePage = () => {
   const { products, setProducts } = useStore();
 
   const handleSet = () => {
-    setProducts(["a", "b", "c", "d", "e"]);
+    setProducts(["1", "2", "3", "4", "5"]);
   };
 
   return (
-    <>
-      <ul>
-        {products.map((product) => (
-          <li key={product}>{product}</li>
-        ))}
-      </ul>
-      <button onClick={handleSet}>Set Products</button>
-    </>
-  );
-};
-
-const Page = () => {
-  return (
-    <StoreProvider>
-      <ResettableComponent />
-    </StoreProvider>
+    <ResetStoreProvider>
+      <>
+        <ul>
+          {products.map((product) => (
+            <li key={product}>{product}</li>
+          ))}
+        </ul>
+        <button onClick={handleSet}>Set Products</button>
+      </>
+    </ResetStoreProvider>
   );
 };

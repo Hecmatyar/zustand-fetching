@@ -25,6 +25,7 @@ const recordController = leitenRecord(useExampleStore, "user", {
     return {};
   },
 });
+
 const useUpdateController = leitenRequest(
   useExampleStore,
   "user",
