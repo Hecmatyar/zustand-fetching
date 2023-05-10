@@ -13,8 +13,8 @@ import {
 import { createAsyncActions, IExtraArgument } from "../slices";
 import { useLeitenRequests } from "./hooks/useLeitenRequest";
 
-type UseRequestType<Payload, Result> = <U = ILeitenLoading<Result, Payload>>(
-  selector?: (state: ILeitenLoading<Result, Payload>) => U,
+type UseRequestType<Payload, Result> = <U = ILeitenLoading<Payload, Result>>(
+  selector?: (state: ILeitenLoading<Payload, Result>) => U,
   equals?: (a: U, b: U) => boolean
 ) => U;
 
