@@ -20,10 +20,6 @@ const recordController = leitenRecord(useExampleStore, "user", {
   sideEffect: () => {
     // something after
   },
-  processingBeforeSet: () => {
-    // update data before set
-    return {};
-  },
 });
 
 const useUpdateController = leitenRequest(

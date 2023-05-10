@@ -20,9 +20,6 @@ export const leitenNormalizedList = <
       : never
     : never,
   params: {
-    processingBeforeSet?: (
-      items: NormalizedType<ValueOf<DotNestedValue<Store, P>>>
-    ) => ValueOf<DotNestedValue<Store, P>>[];
     compare?: (
       left: ValueOf<DotNestedValue<Store, P>>,
       right: ValueOf<DotNestedValue<Store, P>>
@@ -50,11 +47,7 @@ export const leitenNormalizedList = <
 
   const setState = (value: NormalizedType<ITEM>) => {
     const draftState = produce(store.getState(), (draft) => {
-      set(
-        draft,
-        path,
-        params?.processingBeforeSet ? params?.processingBeforeSet(value) : value
-      );
+      set(draft, path, value);
     });
     const nextState = params?.patchEffect
       ? { ...params.patchEffect(value), ...draftState }

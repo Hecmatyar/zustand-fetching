@@ -11,7 +11,6 @@ type ArrayElement<ArrType> = ArrType extends readonly (infer ElementType)[]
   : never;
 
 export interface ILeitenListEffects<ITEM, State> {
-  processingBeforeSet?: (items: ITEM[]) => ITEM[];
   compare?: (left: ITEM, right: ITEM) => boolean;
   sideEffect?: () => void;
   patchEffect?: (items: ITEM[]) => Partial<State>;
@@ -42,11 +41,7 @@ export const leitenList = <
 
   const setState = (value: ITEM[]) => {
     const draftState = produce(store.getState(), (draft) => {
-      set(
-        draft,
-        path,
-        params?.processingBeforeSet ? params?.processingBeforeSet(value) : value
-      );
+      set(draft, path, value);
     });
     const nextState = params?.patchEffect
       ? { ...params.patchEffect(value), ...draftState }

@@ -6,7 +6,6 @@ import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
 
 interface ILeitenRecordEffects<VALUE, State> {
   patchEffect?: (value: VALUE) => Partial<State>;
-  processingBeforeSet?: (item: VALUE) => Partial<VALUE>;
   sideEffect?: (value: { prev: VALUE; next: VALUE }) => void;
 }
 
@@ -47,9 +46,6 @@ export const leitenRecord = <
 
   const setState = (value: VALUE) => {
     const prev = getState();
-    const next = effects?.processingBeforeSet
-      ? { ...value, ...effects.processingBeforeSet(value) }
-      : value;
     const draftState = produce(store.getState(), (draft) => {
       set(draft, path, value);
     });
@@ -57,7 +53,7 @@ export const leitenRecord = <
       ? { ...effects.patchEffect(value), ...draftState }
       : draftState;
     store.setState(nextState);
-    effects?.sideEffect?.({ prev, next });
+    effects?.sideEffect?.({ prev, next: value });
   };
 
   const clear = () => {

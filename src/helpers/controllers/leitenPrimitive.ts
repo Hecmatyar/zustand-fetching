@@ -7,7 +7,6 @@ import { ICreatePrimitive } from "../slices";
 
 interface ILeitenPrimitiveEffects<VALUE, State> {
   patchEffect?: (value: VALUE) => Partial<State>;
-  processingBeforeSet?: (item: VALUE) => VALUE;
   sideEffect?: (value: { prev: VALUE; next: VALUE }) => void;
 }
 
@@ -36,9 +35,6 @@ export const leitenPrimitive = <
 
   const setState = (value: VALUE) => {
     const prev = getState();
-    const next = effects?.processingBeforeSet
-      ? effects.processingBeforeSet(value)
-      : value;
     const draftState = produce(store.getState(), (draft) => {
       set(draft, path, value);
     });
@@ -46,7 +42,7 @@ export const leitenPrimitive = <
       ? { ...effects.patchEffect(value), ...draftState }
       : draftState;
     store.setState(nextState);
-    effects?.sideEffect?.({ prev, next });
+    effects?.sideEffect?.({ prev, next: value });
   };
 
   const clear = () => {
