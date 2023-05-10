@@ -81,7 +81,7 @@ const useExampleStore = create<IState>(() => ({
 const useController = leitenRequest(useExampleStore, "user", getUser);
 
 const User = () => {
-  const status = useLeitenRequests(state => state[useController.key].status)
+  const status = useController(state => state[useController.key].status)
   return <>{status}</>
 }
 ```
