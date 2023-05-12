@@ -35,7 +35,8 @@ export const createRequest = <Payload, Result>(
   const reactions = {
     actionReaction: (
       params: Payload,
-      extraParams?: { status?: ILoadingStatus; requestId?: string }
+      status?: ILoadingStatus,
+      requestId?: string
     ) => {
       const state = get();
       set({
@@ -43,16 +44,16 @@ export const createRequest = <Payload, Result>(
         content: extra?.contentReducers?.pending
           ? extra.contentReducers.pending(params)
           : state.content,
-        status: extraParams?.status ?? "loading",
+        status: status ?? "loading",
         payload: params,
-        requestId: extraParams?.requestId,
+        requestId: requestId,
       });
-      extra?.actionReaction?.(params);
+      extra?.actionReaction?.(params, status, state.requestId);
     },
     fulfilledReaction: (
       content: Result,
       params: Payload,
-      requestId?: string
+      requestId: string
     ) => {
       const state = get();
       if (requestId === state.requestId) {
@@ -63,10 +64,10 @@ export const createRequest = <Payload, Result>(
             : content,
           status: "loaded",
         });
-        extra?.fulfilledReaction?.(content, params);
+        extra?.fulfilledReaction?.(content, params, requestId);
       }
     },
-    rejectedReaction: (params: Payload, error?: any) => {
+    rejectedReaction: (params: Payload, error?: any, requestId?: string) => {
       const state = get();
       set({
         ...state,
@@ -76,9 +77,9 @@ export const createRequest = <Payload, Result>(
         status: "error",
         error,
       });
-      extra?.rejectedReaction?.(params, error);
+      extra?.rejectedReaction?.(params, error, requestId);
     },
-    abortReaction: (params: Payload) => {
+    abortReaction: (params: Payload, requestId: string) => {
       const state = get();
       set({
         ...state,
@@ -88,10 +89,10 @@ export const createRequest = <Payload, Result>(
         status: extra?.initialStatus || "loading",
         error: undefined,
       });
-      extra?.abortReaction?.(params);
+      extra?.abortReaction?.(params, requestId);
     },
-    resolvedReaction: (params: Payload) => {
-      extra?.resolvedReaction?.(params);
+    resolvedReaction: (params: Payload, requestId: string) => {
+      extra?.resolvedReaction?.(params, requestId);
     },
   };
 
@@ -129,14 +130,19 @@ interface IReaction<Payload, Result> {
   fulfilledReaction?: (
     result: Result,
     params: Payload,
+    requestId: string
+  ) => void;
+  rejectedReaction?: (
+    params: Payload,
+    error: string,
     requestId?: string
   ) => void;
-  rejectedReaction?: (params: Payload, error?: any) => void;
-  abortReaction?: (params: Payload) => void;
-  resolvedReaction?: (params: Payload) => void;
+  abortReaction?: (params: Payload, requestId: string) => void;
+  resolvedReaction?: (params: Payload, requestId: string) => void;
   actionReaction?: (
     params: Payload,
-    extraParams?: { status?: ILoadingStatus; requestId?: string }
+    status?: ILoadingStatus,
+    requestId?: string
   ) => void;
 }
 
@@ -169,24 +175,24 @@ export function createAsyncActions<Payload, Result>(
 
   const action = (
     params: Payload,
-    extraParams?: { status?: ILoadingStatus; requestId?: string }
+    options?: { status?: ILoadingStatus; requestId?: string }
   ) => {
-    const requestId = extraParams?.requestId || nanoid();
-    extra?.actionReaction?.(params, { status: extraParams?.status, requestId });
+    const requestId = options?.requestId || nanoid();
+    extra?.actionReaction?.(params, options?.status, requestId);
     payloadCreator(params, { signal })
       .then((result) => {
         extra?.fulfilledReaction?.(result, params, requestId);
       })
       .catch((error) => {
         if (error.message === "The user aborted a request.") {
-          extra?.abortReaction?.(params);
+          extra?.abortReaction?.(params, requestId);
         } else {
-          extra?.rejectedReaction?.(params, error);
+          extra?.rejectedReaction?.(params, error, requestId);
         }
       })
       .finally(() => {
         if (extra?.resolvedReaction) {
-          extra?.resolvedReaction?.(params);
+          extra?.resolvedReaction?.(params, requestId);
         }
       });
   };

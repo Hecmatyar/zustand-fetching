@@ -30,14 +30,29 @@ export interface ILeitenRequest<Payload, Result>
   key: string;
 }
 
+export interface IRequestCallback<Payload, Result> {
+  previousResult: Result;
+  result: Result;
+  payload: Payload;
+  requestId: string;
+  error?: string;
+}
+
 export interface ILeitenRequestOptions<Payload, Result> {
-  fulfilled?: (result: Result, params: Payload, requestId?: string) => void;
-  rejected?: (params: Payload, error: any) => void;
-  abort?: (params: Payload) => void;
-  resolved?: (params: Payload) => void;
+  fulfilled?: (
+    options: Omit<IRequestCallback<Payload, Result>, "error">
+  ) => void;
+  rejected?: (
+    options: Omit<IRequestCallback<Payload, Result>, "result">
+  ) => void;
+  abort?: (
+    options: Omit<IRequestCallback<Payload, Result>, "error" | "result">
+  ) => void;
+  resolved?: (
+    options: Omit<IRequestCallback<Payload, Result>, "result" | "error">
+  ) => void;
   action?: (
-    params: Payload,
-    extraParams?: { status?: ILoadingStatus; requestId?: string }
+    options: Omit<IRequestCallback<Payload, Result>, "error" | "result">
   ) => void;
   initialStatus?: ILoadingStatus;
   optimisticUpdate?: (params: Payload) => Result;
@@ -105,62 +120,72 @@ export const leitenRequest = <
     }
   };
 
-  let prevContent: Result = getContent();
+  let previousResult: Result = getContent();
 
   const reactions = {
     actionReaction: (
-      params: Payload,
-      extraParams?: { status?: ILoadingStatus; requestId?: string }
+      payload: Payload,
+      status?: ILoadingStatus,
+      requestId?: string
     ) => {
       setState({
-        status: extraParams?.status ?? "loading",
-        payload: params,
+        status: status ?? "loading",
+        payload,
         error: undefined,
-        requestId: extraParams?.requestId,
+        requestId: requestId,
       });
-      options?.action?.(params);
-      prevContent = getContent();
+      options?.action?.({
+        previousResult,
+        requestId: requestId || "",
+        payload,
+      });
+      previousResult = getContent();
 
       if (options?.optimisticUpdate) {
-        setContent(options.optimisticUpdate(params));
+        setContent(options.optimisticUpdate(payload));
       }
     },
     fulfilledReaction: (
-      content: Result,
-      params: Payload,
-      requestId?: string
+      result: Result,
+      payload: Payload,
+      requestId: string
     ) => {
       const state = getState();
       if (requestId === state.requestId) {
         // unstable_batchedUpdates(() => {
         setState({ ...state, status: "loaded" });
         if (
-          content !== undefined &&
-          (!options?.optimisticUpdate || !isEqual(prevContent, content))
+          result !== undefined &&
+          (!options?.optimisticUpdate || !isEqual(previousResult, result))
         ) {
-          setContent(content);
+          setContent(result);
         }
         // });
-        options?.fulfilled?.(content, params);
+        options?.fulfilled?.({ previousResult, requestId, payload, result });
       }
     },
-    rejectedReaction: (params: Payload, error: any) => {
+    rejectedReaction: (payload: Payload, error: string, requestId?: string) => {
       const state = getState();
       setState({ ...state, status: "error", error });
-      options?.rejected?.(params, error);
+      options?.rejected?.({
+        previousResult,
+        requestId: requestId || "",
+        payload,
+        error,
+      });
       if (options?.optimisticUpdate) {
-        setContent(prevContent);
+        setContent(previousResult);
       }
     },
-    abortReaction: (params: Payload) => {
+    abortReaction: (payload: Payload, requestId: string) => {
       setState(initialState);
-      options?.abort?.(params);
+      options?.abort?.({ previousResult, requestId, payload });
       if (options?.optimisticUpdate) {
-        setContent(prevContent);
+        setContent(previousResult);
       }
     },
-    resolvedReaction: (params: Payload) => {
-      options?.resolved?.(params);
+    resolvedReaction: (payload: Payload, requestId: string) => {
+      options?.resolved?.({ previousResult, requestId, payload });
     },
   };
 

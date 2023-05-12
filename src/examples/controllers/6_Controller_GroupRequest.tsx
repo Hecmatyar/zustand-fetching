@@ -24,8 +24,8 @@ export const useGroupController = leitenGroupRequest(
     return getCard(props.params);
   },
   {
-    fulfilled: (result, params) => {
-      console.log("everything ok", result.type, params);
+    fulfilled: ({ result, payload }) => {
+      console.log("everything ok", result.type, payload);
     },
   }
 );
