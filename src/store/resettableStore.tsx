@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from "react";
 import { StoreApi } from "zustand";
 
-export const makeResettable = <Store, _>(
+export const leitenResettable = <Store, _>(
   useStore: StoreApi<Store>,
   getState?: () => Store
 ) => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { create } from "zustand";
 
-import { makeResettable } from "../../store/resettableStore";
+import { leitenResettable } from "../../store/resettableStore";
 
 interface StoreExample {
   products: string[];
@@ -14,7 +14,7 @@ const useStore = create<StoreExample>((set) => ({
     set((state) => ({ ...state, products: myProducts })),
 }));
 
-const ResetStoreProvider = makeResettable(useStore);
+const ResetStoreProvider = leitenResettable(useStore);
 
 export const ResettablePage = () => {
   const { products, setProducts } = useStore();
