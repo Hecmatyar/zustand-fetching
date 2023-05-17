@@ -4,14 +4,15 @@ import { nanoid } from "nanoid";
 import { StoreApi } from "zustand";
 import { shallow } from "zustand/shallow";
 
-import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
+import { useLeitenRequests } from "../hooks/useLeitenRequest";
+import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
 import {
   ILeitenLoading,
   ILoadingStatus,
   initialLeitenLoading,
-} from "../../interfaces/IContentLoading";
-import { createAsyncActions, IExtraArgument } from "../slices";
-import { useLeitenRequests } from "./hooks/useLeitenRequest";
+} from "../interfaces/IContentLoading";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 type UseRequestType<Payload, Result> = <U = ILeitenLoading<Payload, Result>>(
   selector?: (state: ILeitenLoading<Payload, Result>) => U,
@@ -30,7 +31,7 @@ export interface ILeitenRequest<Payload, Result>
   key: string;
 }
 
-export interface IRequestCallback<Payload, Result> {
+export interface ILeitenRequestCallback<Payload, Result> {
   previousResult: Result;
   result: Result;
   payload: Payload;
@@ -40,19 +41,19 @@ export interface IRequestCallback<Payload, Result> {
 
 export interface ILeitenRequestOptions<Payload, Result> {
   fulfilled?: (
-    options: Omit<IRequestCallback<Payload, Result>, "error">
+    options: Omit<ILeitenRequestCallback<Payload, Result>, "error">
   ) => void;
   rejected?: (
-    options: Omit<IRequestCallback<Payload, Result>, "result">
+    options: Omit<ILeitenRequestCallback<Payload, Result>, "result">
   ) => void;
   abort?: (
-    options: Omit<IRequestCallback<Payload, Result>, "error" | "result">
+    options: Omit<ILeitenRequestCallback<Payload, Result>, "error" | "result">
   ) => void;
   resolved?: (
-    options: Omit<IRequestCallback<Payload, Result>, "result" | "error">
+    options: Omit<ILeitenRequestCallback<Payload, Result>, "result" | "error">
   ) => void;
   action?: (
-    options: Omit<IRequestCallback<Payload, Result>, "error" | "result">
+    options: Omit<ILeitenRequestCallback<Payload, Result>, "error" | "result">
   ) => void;
   initialStatus?: ILoadingStatus;
   optimisticUpdate?: (params: Payload) => Result;
@@ -123,11 +124,7 @@ export const leitenRequest = <
   let previousResult: Result = getContent();
 
   const reactions = {
-    actionReaction: (
-      payload: Payload,
-      status?: ILoadingStatus,
-      requestId?: string
-    ) => {
+    action: (payload: Payload, status?: ILoadingStatus, requestId?: string) => {
       setState({
         status: status ?? "loading",
         payload,
@@ -145,14 +142,9 @@ export const leitenRequest = <
         setContent(options.optimisticUpdate(payload));
       }
     },
-    fulfilledReaction: (
-      result: Result,
-      payload: Payload,
-      requestId: string
-    ) => {
+    fulfilled: (result: Result, payload: Payload, requestId: string) => {
       const state = getState();
       if (requestId === state.requestId) {
-        // unstable_batchedUpdates(() => {
         setState({ ...state, status: "loaded" });
         if (
           result !== undefined &&
@@ -160,11 +152,10 @@ export const leitenRequest = <
         ) {
           setContent(result);
         }
-        // });
         options?.fulfilled?.({ previousResult, requestId, payload, result });
       }
     },
-    rejectedReaction: (payload: Payload, error: string, requestId?: string) => {
+    rejected: (payload: Payload, error: string, requestId?: string) => {
       const state = getState();
       setState({ ...state, status: "error", error });
       options?.rejected?.({
@@ -177,14 +168,14 @@ export const leitenRequest = <
         setContent(previousResult);
       }
     },
-    abortReaction: (payload: Payload, requestId: string) => {
+    abort: (payload: Payload, requestId: string) => {
       setState(initialState);
       options?.abort?.({ previousResult, requestId, payload });
       if (options?.optimisticUpdate) {
         setContent(previousResult);
       }
     },
-    resolvedReaction: (payload: Payload, requestId: string) => {
+    resolved: (payload: Payload, requestId: string) => {
       options?.resolved?.({ previousResult, requestId, payload });
     },
   };
@@ -196,10 +187,8 @@ export const leitenRequest = <
   };
 
   const clear = () => {
-    // unstable_batchedUpdates(() => {
     setState(initialState);
     setContent(initialContent);
-    // })
   };
 
   const useRequest: UseRequestType<Payload, Result> = (selector, equals) => {
@@ -228,3 +217,60 @@ export const leitenRequest = <
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const nonTypedReturn = (value: any) => value;
+
+function createAsyncActions<Payload, Result>(
+  payloadCreator: (
+    params: Payload,
+    extraArgument?: IExtraArgument
+  ) => Promise<Result>,
+  extra?: IReaction<Payload, Result>
+) {
+  let controller = new AbortController();
+  let signal = controller.signal;
+
+  const abort = () => {
+    controller.abort();
+    controller = new AbortController();
+    signal = controller.signal;
+  };
+
+  const action = (
+    params: Payload,
+    options?: { status?: ILoadingStatus; requestId?: string }
+  ) => {
+    const requestId = options?.requestId || nanoid();
+    extra?.action?.(params, options?.status, requestId);
+    payloadCreator(params, { signal })
+      .then((result) => {
+        extra?.fulfilled?.(result, params, requestId);
+      })
+      .catch((error) => {
+        if (error.message === "The user aborted a request.") {
+          extra?.abort?.(params, requestId);
+        } else {
+          extra?.rejected?.(params, error, requestId);
+        }
+      })
+      .finally(() => {
+        extra?.resolved?.(params, requestId);
+      });
+  };
+  return { action, abort };
+}
+
+interface IReaction<Payload, Result> {
+  fulfilled?: (result: Result, params: Payload, requestId: string) => void;
+  rejected?: (params: Payload, error: string, requestId?: string) => void;
+  abort?: (params: Payload, requestId: string) => void;
+  resolved?: (params: Payload, requestId: string) => void;
+  action?: (
+    params: Payload,
+    status?: ILoadingStatus,
+    requestId?: string
+  ) => void;
+}
+
+type IExtraArgument = {
+  signal: AbortSignal;
+  // requestId: string
+};

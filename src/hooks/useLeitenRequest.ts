@@ -3,7 +3,7 @@ import { create } from "zustand";
 import {
   ILeitenLoading,
   initialLeitenLoading,
-} from "../../../interfaces/IContentLoading"; /* eslint-disable @typescript-eslint/no-explicit-any */
+} from "../interfaces/IContentLoading";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const useLeitenRequests = create<{

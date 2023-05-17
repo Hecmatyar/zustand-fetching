@@ -1,5 +1,5 @@
-export * from "./hooks/useLeitenModals";
-export * from "./hooks/useLeitenRequest";
+export * from "../hooks/useLeitenModals";
+export * from "../hooks/useLeitenRequest";
 export * from "./leitenGroupRequest";
 export * from "./leitenList";
 export * from "./leitenModal";

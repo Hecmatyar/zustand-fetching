@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { leitenList, leitenNormalizedList } from "../../helpers/controllers";
+import { leitenList, leitenNormalizedList } from "../../helpers";
 import { IKeyword } from "../requests";
 
 interface IState {
@@ -17,7 +17,9 @@ const useExampleStore = create<IState>(() => ({
   },
 }));
 
-const listController = leitenList(useExampleStore, "info.keywords");
+const listController = leitenList(useExampleStore, "info.keywords", {
+  compare: (a, b) => a.value === b.value,
+});
 const normalizedListController = leitenNormalizedList(
   useExampleStore,
   "info.normalizedKeywords",

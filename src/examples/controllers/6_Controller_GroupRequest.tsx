@@ -5,7 +5,7 @@ import {
   leitenGroupRequest,
   leitenMap,
   useLeitenRequests,
-} from "../../helpers/controllers";
+} from "../../helpers";
 import { getCard, ICard } from "../requests";
 
 interface IState {

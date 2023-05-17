@@ -4,11 +4,11 @@ import { nanoid } from "nanoid";
 import { StoreApi } from "zustand";
 import { shallow } from "zustand/shallow";
 
-import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
 import {
   leitenModalManagerAction,
   useLeitenModalStack,
-} from "./hooks/useLeitenModals";
+} from "../hooks/useLeitenModals";
+import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
 
 type ActionType = "OPEN" | "CLOSE" | "TOGGLE" | "SET_DATA";
 

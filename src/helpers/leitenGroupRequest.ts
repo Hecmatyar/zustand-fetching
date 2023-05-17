@@ -3,18 +3,20 @@ import { set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
 import { shallow } from "zustand/shallow";
 
-import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
+import { useLeitenRequests } from "../hooks/useLeitenRequest";
+import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
 import {
   ILeitenLoading,
   ILoadingStatus,
   initialLeitenLoading,
-} from "../../interfaces/IContentLoading";
-import { useLeitenRequests } from "./hooks/useLeitenRequest";
+} from "../interfaces/IContentLoading";
 import {
   ILeitenRequest,
   ILeitenRequestOptions,
   leitenRequest,
 } from "./leitenRequest";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface ILeitenGroupRequestParams<Params> {
   key: string;

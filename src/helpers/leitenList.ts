@@ -2,10 +2,20 @@ import { produce } from "immer";
 import { get, isArray, set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
 
-import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
-import { defaultCompareList, ICreateList } from "../slices";
+import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
 
-export type ILeitenList<ITEM> = Omit<ICreateList<ITEM>, "list">;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+export type ILeitenList<ITEM> = {
+  set: (items: ITEM[]) => void;
+  add: (items: ITEM[] | ITEM) => void;
+  remove: (items: ITEM[] | ITEM) => void;
+  toggle: (item: ITEM) => void;
+  update: (item: ITEM[] | ITEM) => void;
+  clear: () => void;
+  filter: (validate: (item: ITEM) => boolean) => void;
+};
+
 type ArrayElement<ArrType> = ArrType extends readonly (infer ElementType)[]
   ? ElementType
   : never;
@@ -122,3 +132,6 @@ export const leitenList = <
 
   return { set: setState, clear, toggle, update, filter, remove, add };
 };
+
+const defaultCompareList = <ITEM>(left: ITEM, right: ITEM): boolean =>
+  left === right;

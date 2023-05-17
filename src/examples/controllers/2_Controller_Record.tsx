@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { create } from "zustand";
 
-import { leitenRecord, leitenRequest } from "../../helpers/controllers";
+import { leitenRecord, leitenRequest } from "../../helpers";
 import { getUser, IUser, updateUser } from "../requests";
 
 interface IState {

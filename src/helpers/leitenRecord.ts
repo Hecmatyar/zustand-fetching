@@ -2,7 +2,9 @@ import { produce } from "immer";
 import { get, set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
 
-import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
+import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 interface ILeitenRecordEffects<VALUE, State> {
   patchEffect?: (value: VALUE) => Partial<State>;

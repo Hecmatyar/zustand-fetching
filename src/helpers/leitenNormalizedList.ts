@@ -2,8 +2,7 @@ import { produce } from "immer";
 import { get, set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
 
-import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
-import { defaultCompareList } from "../slices";
+import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
 import { ILeitenList } from "./leitenList";
 
 type NormalizedType<ITEM> = Record<string, ITEM>;
@@ -144,3 +143,6 @@ export const leitenNormalizedList = <
 
   return { set: _set, clear, toggle, update, filter, remove, add, removeByKey };
 };
+
+const defaultCompareList = <ITEM>(left: ITEM, right: ITEM): boolean =>
+  left === right;

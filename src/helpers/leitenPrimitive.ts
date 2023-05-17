@@ -2,15 +2,17 @@ import { produce } from "immer";
 import { get, set } from "lodash-es";
 import { StoreApi } from "zustand";
 
-import { DotNestedKeys, DotNestedValue } from "../../interfaces/dotNestedKeys";
-import { ICreatePrimitive } from "../slices";
+import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
 
 interface ILeitenPrimitiveEffects<VALUE, State> {
   patchEffect?: (value: VALUE) => Partial<State>;
   sideEffect?: (value: { prev: VALUE; next: VALUE }) => void;
 }
 
-export type ILeitenPrimitive<VALUE> = Omit<ICreatePrimitive<VALUE>, "value">;
+export type ILeitenPrimitive<VALUE> = {
+  set: (value: VALUE) => void;
+  clear: () => void;
+};
 
 export const leitenPrimitive = <
   Store extends object,

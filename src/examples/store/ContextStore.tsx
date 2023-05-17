@@ -1,6 +1,6 @@
 // Define the store
-import { createContextStore } from "../../helpers/contextStore";
-import { leitenPrimitive } from "../../helpers/controllers";
+import { leitenPrimitive } from "../../helpers";
+import { createContextStore } from "../../store/contextStore";
 
 export const [useCounterStore, CounterStoreProvider, useControllers] =
   createContextStore(
