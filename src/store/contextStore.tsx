@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 import { create, StateCreator, StoreApi, useStore } from "zustand";
 
-export const createContextStore = <STATE, R>(
+export const leitenContext = <STATE, R>(
   state: StateCreator<STATE>,
   applyStore?: (store: StoreApi<STATE>) => R
 ) => {

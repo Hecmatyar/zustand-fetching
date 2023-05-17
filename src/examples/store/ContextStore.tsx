@@ -1,9 +1,9 @@
 // Define the store
 import { leitenPrimitive } from "../../helpers";
-import { createContextStore } from "../../store/contextStore";
+import { leitenContext } from "../../store/contextStore";
 
 export const [useCounterStore, CounterStoreProvider, useControllers] =
-  createContextStore(
+  leitenContext(
     () => ({
       count: 0,
     }),
