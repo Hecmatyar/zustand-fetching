@@ -1,19 +1,20 @@
 import React from "react";
+import { create } from "zustand";
 
-import { createResettable } from "../../store/resettableStore";
+import { makeResettable } from "../../store/resettableStore";
 
 interface StoreExample {
   products: string[];
   setProducts: (value: string[]) => void;
 }
 
-const [useStore, ResetStoreProvider] = createResettable<StoreExample>(
-  (set) => ({
-    products: [],
-    setProducts: (myProducts) =>
-      set((state) => ({ ...state, products: myProducts })),
-  })
-);
+const useStore = create<StoreExample>((set) => ({
+  products: [],
+  setProducts: (myProducts) =>
+    set((state) => ({ ...state, products: myProducts })),
+}));
+
+const ResetStoreProvider = makeResettable(useStore);
 
 export const ResettablePage = () => {
   const { products, setProducts } = useStore();

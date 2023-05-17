@@ -1,23 +1,21 @@
 import { ReactNode, useEffect } from "react";
-import { create, StateCreator } from "zustand";
+import { StoreApi } from "zustand";
 
-export const createResettable = <STATE,>(
-  state: StateCreator<STATE>,
-  getState?: () => STATE
+export const makeResettable = <Store, _>(
+  useStore: StoreApi<Store>,
+  getState?: () => Store
 ) => {
-  const useStore = create<STATE>(
-    Object.assign(state, { _resettableLifeCycle: false })
-  );
   const initialState = useStore.getState();
+  useStore.setState({ _resettableLifeCycle: false } as Store);
 
-  const ResetStoreProvider = ({ children }: { children?: ReactNode }) => {
+  return ({ children }: { children?: ReactNode }) => {
     useEffect(() => {
-      const reset = { _resettableLifeCycle: true } as STATE;
+      const reset = { _resettableLifeCycle: true } as Store;
       useStore.setState(reset);
 
       return () => {
         useStore.setState(
-          { _resettableLifeCycle: false, ...(getState?.() || initialState) },
+          { ...(getState?.() || initialState), _resettableLifeCycle: false },
           true
         );
       };
@@ -25,9 +23,4 @@ export const createResettable = <STATE,>(
 
     return <>{children}</>;
   };
-
-  return [useStore, ResetStoreProvider] as [
-    typeof useStore,
-    typeof ResetStoreProvider
-  ];
 };

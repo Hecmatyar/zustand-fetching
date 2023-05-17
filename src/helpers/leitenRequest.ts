@@ -201,8 +201,12 @@ export const leitenRequest = <
   const resettable =
     (store.getState() as any)["_resettableLifeCycle"] !== undefined;
   if (resettable) {
-    store.subscribe((next) => {
-      if ((next as any)["_resettableLifeCycle"] === false) clear();
+    store.subscribe((next, prev) => {
+      if (
+        (next as any)["_resettableLifeCycle"] === false &&
+        (prev as any)["_resettableLifeCycle"] === true
+      )
+        setState(initialState);
     });
   }
 
