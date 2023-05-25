@@ -1,7 +1,6 @@
 # Zustand Fetching Helpers
 
-> Introducing several functions that simplify working with **zustand** and clean up your store from unnecessary actions
-> and states.
+> Helps to avoid using other state managers to execute requests and allows you to work efficiently with zustand.
 
 The functions described below are _**well-typed**_ and allow working with _**nested**_ objects. Zustand suggests writing
 custom [slices](https://github.com/pmndrs/zustand/blob/main/docs/guides/slices-pattern.md) and dividing the store into

@@ -11,11 +11,13 @@ import { getCard, ICard } from "../requests";
 interface IState {
   info: { keys: string[] };
   cards: Record<string, ICard>;
+  array: ICard[];
 }
 
 const useExampleStore = create<IState>(() => ({
   info: { keys: ["1", "2", "3"] },
   cards: {},
+  array: [],
 }));
 export const useGroupController = leitenGroupRequest(
   useExampleStore,

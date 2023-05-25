@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { set } from "lodash-es";
+import { get, set } from "lodash-es";
 import { StoreApi } from "zustand/esm";
 import { shallow } from "zustand/shallow";
 
@@ -62,6 +62,11 @@ interface ILeitenGroupRequestOption<Payload, Result>
   initialContent?: Result;
 }
 
+interface ILeitenGroupRequestArrayOption<Payload, Result>
+  extends ILeitenGroupRequestOption<Payload, Result> {
+  getKey: (value: Result) => string;
+}
+
 export const leitenGroupRequest = <
   Store extends object,
   P extends DotNestedKeys<Store>,
@@ -70,14 +75,16 @@ export const leitenGroupRequest = <
 >(
   store: StoreApi<Store>,
   path: P extends string
-    ? DotNestedValue<Store, P> extends Record<string, Result> | null
+    ? DotNestedValue<Store, P> extends Record<string, Result> | Array<Result>
       ? P
       : never
     : never,
   payloadCreator: (
     params: ILeitenGroupRequestParams<Payload>
   ) => Promise<Result>,
-  options?: ILeitenGroupRequestOption<Payload, Result>
+  options?: DotNestedValue<Store, P> extends Record<string, Result>
+    ? ILeitenGroupRequestOption<Payload, Result>
+    : ILeitenGroupRequestArrayOption<Payload, Result>
 ): ILeitenGroupRequest<Payload, Result> => {
   const initialRequestState = initialLeitenLoading<
     ILeitenGroupRequestParams<Payload>,
@@ -87,24 +94,50 @@ export const leitenGroupRequest = <
     string,
     ILeitenRequest<ILeitenGroupRequestParams<Payload>, Result>
   > = {};
+  const isArray = Array.isArray(get(store.getState(), path));
+
+  const getPathToArrayItem = (key: string) => {
+    const source = get(store.getState(), path, []);
+    const find = source.findIndex(
+      (s) =>
+        (options as ILeitenGroupRequestArrayOption<Payload, Result>)?.getKey?.(
+          s
+        ) === key
+    );
+    const index = find !== -1 ? find : source.length;
+    const withKey = (path + `["${index}"]`) as DotNestedKeys<Store>;
+    return { withKey, isNew: find === -1 };
+  };
 
   const add = (key: string) => {
-    const state = requests[key];
-    if (!state) {
-      const pathWithKey = (path + `.["${key}"]`) as DotNestedKeys<Store>;
+    // const state = requests[key];
+    // if (!state) {
+    let pathWithKey = "" as DotNestedKeys<Store>;
+    let payload = payloadCreator;
+    if (isArray) {
+      const before = getPathToArrayItem(key);
+      pathWithKey = before.withKey;
+      // eslint-disable-next-line
+      // @ts-ignore
+      payload = async (params: ILeitenGroupRequestParams<Payload>) => {
+        const result = await payloadCreator(params);
+        const after = getPathToArrayItem(key);
+        if ((before.isNew && after.isNew) || !after.isNew) {
+          const nextState = produce(store.getState(), (draft) => {
+            set(draft, after.withKey, result);
+          });
+          store.setState(nextState);
+        }
+      };
+    } else {
+      pathWithKey = (path + `.${key}`) as DotNestedKeys<Store>;
       const nextState = produce(store.getState(), (draft) => {
         set(draft, pathWithKey, options?.initialContent ?? null);
       });
       store.setState(nextState);
-      requests[key] = leitenRequest(
-        store,
-        pathWithKey,
-        payloadCreator,
-        options
-      );
-    } else {
-      requests[key].clear();
     }
+    requests[key] = leitenRequest(store, pathWithKey, payload, options);
+    // }
   };
 
   const call = (
@@ -115,7 +148,7 @@ export const leitenGroupRequest = <
       const request = requests[key];
       const payload = { key, params };
 
-      if (request) {
+      if (request && !isArray) {
         request.action(payload, options);
       } else {
         add(key);
@@ -126,7 +159,7 @@ export const leitenGroupRequest = <
 
   const clear = (key?: string) => {
     if (key) {
-      requests[key].clear();
+      !isArray && requests[key].clear();
       delete requests[key];
     } else {
       set(store, path, {});
