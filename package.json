@@ -1,8 +1,8 @@
 {
-  "name": "zustand-fetching",
-  "version": "2.4.0",
+  "name": "leiten-zustand",
+  "version": "1.0.1",
   "private": false,
-  "description": "Zustand fetching helpers",
+  "description": "Zustand state manager controllers",
   "repository": {
     "type": "git",
     "url": "https://github.com:hecmatyar/zustand-fetching.git"
@@ -100,6 +100,8 @@
     "fetching",
     "state",
     "store",
-    "helpers"
+    "helpers",
+    "constrollers",
+    "lenses"
   ]
 }
