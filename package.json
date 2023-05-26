@@ -5,7 +5,7 @@
   "description": "Zustand state manager controllers",
   "repository": {
     "type": "git",
-    "url": "https://github.com:hecmatyar/zustand-fetching.git"
+    "url": "https://github.com:hecmatyar/leiten-zustand.git"
   },
   "sideEffects": false,
   "main": "dist/index.js",
@@ -92,7 +92,7 @@
   },
   "engineStrict": true,
   "publishConfig": {
-    "homepage": "https://github.com/Hecmatyar/zustand-fetching"
+    "homepage": "https://github.com/Hecmatyar/leiten-zustand"
   },
   "license": "MIT",
   "keywords": [
