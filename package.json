@@ -1,11 +1,11 @@
 {
-  "name": "leiten-zustand",
+  "name": "zustand-fetching",
   "version": "2.4.1",
   "private": false,
   "description": "Zustand state manager controllers",
   "repository": {
     "type": "git",
-    "url": "https://github.com:hecmatyar/leiten-zustand.git"
+    "url": "https://github.com:hecmatyar/zustand-fetching.git"
   },
   "sideEffects": false,
   "main": "dist/index.js",
@@ -92,7 +92,7 @@
   },
   "engineStrict": true,
   "publishConfig": {
-    "homepage": "https://github.com/Hecmatyar/leiten-zustand"
+    "homepage": "https://github.com/Hecmatyar/zustand-fecthing"
   },
   "license": "MIT",
   "keywords": [
