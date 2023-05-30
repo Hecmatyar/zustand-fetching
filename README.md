@@ -16,7 +16,7 @@ it into multiple parts.
 
 ## Installation
 
-You can install the library using npm:
+⚠️library changed name. You can install the library using npm:
 
 ```bash
 npm install leiten-zustand
