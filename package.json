@@ -1,11 +1,11 @@
 {
   "name": "zustand-fetching",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "private": false,
   "description": "Zustand state manager controllers",
   "repository": {
     "type": "git",
-    "url": "https://github.com:hecmatyar/zustand-fetching.git"
+    "url": "https://github.com:hecmatyar/leiten-zustand.git"
   },
   "sideEffects": false,
   "main": "dist/index.js",
