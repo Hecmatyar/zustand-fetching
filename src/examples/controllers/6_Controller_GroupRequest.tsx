@@ -27,7 +27,7 @@ export const useGroupController = leitenGroupRequest(
   },
   {
     fulfilled: ({ result, payload }) => {
-      console.log("everything ok", result.type, payload);
+      // console.log("everything ok", result.type, payload);
     },
   }
 );

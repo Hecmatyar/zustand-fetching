@@ -59,7 +59,7 @@ export type ILeitenGroupRequest<Payload, Result> = {
 
 interface ILeitenGroupRequestOption<Payload, Result>
   extends ILeitenRequestOptions<ILeitenGroupRequestParams<Payload>, Result> {
-  initialContent?: Result;
+  initialContent?: Result | ((key: string) => Result);
 }
 
 interface ILeitenGroupRequestArrayOption<Payload, Result>
@@ -67,22 +67,40 @@ interface ILeitenGroupRequestArrayOption<Payload, Result>
   getKey: (value: Result) => string;
 }
 
+type AcceptableType<Store extends object> = void | DotNestedValue<
+  Store,
+  DotNestedKeys<Store>
+> | null;
+
+/** @deprecated use leitenGroupRequest from leiten-zustand library instead */
 export const leitenGroupRequest = <
   Store extends object,
   P extends DotNestedKeys<Store>,
   Payload,
-  Result
+  Result extends DotNestedValue<Store, P> extends Record<
+    string,
+    AcceptableType<Store>
+  >
+    ? DotNestedValue<Store, P>[string]
+    : DotNestedValue<Store, P> extends Array<AcceptableType<Store>>
+    ? DotNestedValue<Store, P>[number]
+    : DotNestedValue<Store, P>
 >(
   store: StoreApi<Store>,
   path: P extends string
-    ? DotNestedValue<Store, P> extends Record<string, Result> | Array<Result>
+    ? Result extends void
+      ? P
+      : DotNestedValue<Store, P> extends Record<string, Result> | Array<Result>
       ? P
       : never
     : never,
   payloadCreator: (
     params: ILeitenGroupRequestParams<Payload>
   ) => Promise<Result>,
-  options?: DotNestedValue<Store, P> extends Record<string, Result>
+  options?: DotNestedValue<Store, P> extends Record<
+    string,
+    AcceptableType<Store>
+  >
     ? ILeitenGroupRequestOption<Payload, Result>
     : ILeitenGroupRequestArrayOption<Payload, Result>
 ): ILeitenGroupRequest<Payload, Result> => {
@@ -94,10 +112,12 @@ export const leitenGroupRequest = <
     string,
     ILeitenRequest<ILeitenGroupRequestParams<Payload>, Result>
   > = {};
+
   const isArray = Array.isArray(get(store.getState(), path));
 
   const getPathToArrayItem = (key: string) => {
-    const source = get(store.getState(), path, []);
+    const raw = get(store.getState(), path, []);
+    const source = Array.isArray(raw) ? raw : [];
     const find = source.findIndex(
       (s) =>
         (options as ILeitenGroupRequestArrayOption<Payload, Result>)?.getKey?.(
@@ -110,8 +130,6 @@ export const leitenGroupRequest = <
   };
 
   const add = (key: string) => {
-    // const state = requests[key];
-    // if (!state) {
     let pathWithKey = "" as DotNestedKeys<Store>;
     let payload = payloadCreator;
     if (isArray) {
@@ -131,13 +149,17 @@ export const leitenGroupRequest = <
       };
     } else {
       pathWithKey = (path + `.${key}`) as DotNestedKeys<Store>;
-      const nextState = produce(store.getState(), (draft) => {
-        set(draft, pathWithKey, options?.initialContent ?? null);
-      });
-      store.setState(nextState);
+      if (options?.initialContent) {
+        const initial = checkInitial(options.initialContent)
+          ? options.initialContent(key)
+          : options.initialContent;
+        const nextState = produce(store.getState(), (draft) => {
+          set(draft, pathWithKey, initial);
+        });
+        store.setState(nextState);
+      }
     }
     requests[key] = leitenRequest(store, pathWithKey, payload, options);
-    // }
   };
 
   const call = (
@@ -225,16 +247,25 @@ export const leitenGroupRequest = <
     }
   }
 
-  const resettable =
-    (store.getState() as any)["_resettableLifeCycle"] !== undefined;
-  if (resettable) {
-    store.subscribe((next) => {
-      if ((next as any)["_resettableLifeCycle"] === false) clear();
-    });
-  }
+  setTimeout(() => {
+    const resettable =
+      (store.getState() as any)["_resettableLifeCycle"] !== undefined;
+    if (resettable) {
+      store.subscribe((next, prev) => {
+        if (
+          (next as any)["_resettableLifeCycle"] === false &&
+          (prev as any)["_resettableLifeCycle"] === true
+        )
+          clear();
+      });
+    }
+  }, 0);
 
   return Object.assign(hook, { clear, call, requests });
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const nonTypedReturn = (value: any) => value;
+
+const checkInitial = <Result>(
+  value: Result | ((key: string) => Result)
+): value is (key: string) => Result => typeof value === "function";

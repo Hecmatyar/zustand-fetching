@@ -6,6 +6,8 @@ import {
 } from "../interfaces/IContentLoading";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/** @deprecated use useLeitenRequests from leiten-zustand library instead */
+
 export const useLeitenRequests = create<{
   [key: string]: ILeitenLoading<any, any>;
 }>(() => ({}));

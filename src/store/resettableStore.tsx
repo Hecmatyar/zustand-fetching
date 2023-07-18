@@ -1,6 +1,8 @@
 import { ReactNode, useEffect } from "react";
 import { StoreApi } from "zustand";
 
+/** @deprecated use leitenResettable from leiten-zustand library instead */
+
 export const leitenResettable = <Store, _>(
   useStore: StoreApi<Store>,
   getState?: () => Store

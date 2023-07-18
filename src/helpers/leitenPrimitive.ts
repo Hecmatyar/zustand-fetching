@@ -14,6 +14,8 @@ export type ILeitenPrimitive<VALUE> = {
   clear: () => void;
 };
 
+/** @deprecated use leitenPrimitive from leiten-zustand library instead */
+
 export const leitenPrimitive = <
   Store extends object,
   P extends DotNestedKeys<Store>
@@ -23,9 +25,8 @@ export const leitenPrimitive = <
   effects?: ILeitenPrimitiveEffects<DotNestedValue<Store, P>, Store>
 ): ILeitenPrimitive<DotNestedValue<Store, P>> => {
   type VALUE = DotNestedValue<Store, P>;
-  const initialValue = get(store.getState(), path, "_empty") as
-    | VALUE
-    | "_empty";
+
+  const initialValue = get(store.getState(), path, "_empty") as VALUE;
   if (initialValue === "_empty") {
     throw new Error("[leitenPrimitive] The defined path does not exist");
   }
@@ -35,16 +36,16 @@ export const leitenPrimitive = <
     return value !== "_empty" ? value : initialValue;
   };
 
-  const setState = (value: VALUE) => {
+  const setState = (next: VALUE) => {
     const prev = getState();
     const draftState = produce(store.getState(), (draft) => {
-      set(draft, path, value);
+      set(draft, path, next);
     });
     const nextState = effects?.patchEffect
-      ? { ...effects.patchEffect(value), ...draftState }
+      ? { ...effects.patchEffect(next), ...draftState }
       : draftState;
     store.setState(nextState);
-    effects?.sideEffect?.({ prev, next: value });
+    effects?.sideEffect?.({ prev, next });
   };
 
   const clear = () => {

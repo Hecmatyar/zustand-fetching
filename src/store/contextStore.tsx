@@ -1,6 +1,8 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 import { create, StateCreator, StoreApi, useStore } from "zustand";
 
+/** @deprecated use leitenContext from leiten-zustand library instead */
+
 export const leitenContext = <STATE, R>(
   state: StateCreator<STATE>,
   applyStore?: (store: StoreApi<STATE>) => R

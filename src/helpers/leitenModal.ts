@@ -24,6 +24,8 @@ export interface ILeitenModal<Data> {
   (): [boolean, boolean];
 }
 
+/** @deprecated use leitenModal from leiten-zustand library instead */
+
 export const leitenModal = <
   Store extends object,
   P extends DotNestedKeys<Store>
@@ -39,10 +41,12 @@ export const leitenModal = <
   }
 ): ILeitenModal<DotNestedValue<Store, P>> => {
   type Data = DotNestedValue<Store, P>;
-  const initialData = get(store.getState(), path, "_empty") as Data | "_empty";
+
+  const initialData = get(store.getState(), path, "_empty") as Data;
   if (initialData === "_empty") {
     throw new Error("[leitenModal] The defined path does not exist");
   }
+
   const key = nanoid(10);
 
   const setContent = (value: Data) => {
@@ -83,7 +87,7 @@ export const leitenModal = <
   };
 
   const open = (data?: DotNestedValue<Store, P>, replace?: boolean) => {
-    action({ type: "OPEN", payload: data || initialData, replace });
+    action({ type: "OPEN", payload: data, replace });
   };
 
   const close = () => action({ type: "CLOSE" });

@@ -17,6 +17,8 @@ export interface ILeitenRecord<VALUE> {
   clear: () => void;
 }
 
+/** @deprecated use leitenRecord from leiten-zustand library instead */
+
 export const leitenRecord = <
   Store extends object,
   P extends DotNestedKeys<Store>
@@ -32,9 +34,8 @@ export const leitenRecord = <
   effects?: ILeitenRecordEffects<DotNestedValue<Store, P>, Store>
 ): ILeitenRecord<DotNestedValue<Store, P>> => {
   type VALUE = DotNestedValue<Store, P>;
-  const initialValue = get(store.getState(), path, "_empty") as
-    | VALUE
-    | "_empty";
+
+  const initialValue = get(store.getState(), path, "_empty") as VALUE;
   if (initialValue === "_empty" || typeof initialValue !== "object") {
     throw new Error(
       "[leitenRecord] The defined path does not match the required structure"
@@ -46,16 +47,16 @@ export const leitenRecord = <
     return value !== "_empty" ? value : initialValue;
   };
 
-  const setState = (value: VALUE) => {
+  const setState = (next: VALUE) => {
     const prev = getState();
     const draftState = produce(store.getState(), (draft) => {
-      set(draft, path, value);
+      set(draft, path, next);
     });
     const nextState = effects?.patchEffect
-      ? { ...effects.patchEffect(value), ...draftState }
+      ? { ...effects.patchEffect(next), ...draftState }
       : draftState;
     store.setState(nextState);
-    effects?.sideEffect?.({ prev, next: value });
+    effects?.sideEffect?.({ prev, next });
   };
 
   const clear = () => {

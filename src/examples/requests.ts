@@ -35,7 +35,7 @@ export const getUser = async (
 export const updateUser = async (user: IUser): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log(user); // send to server
+      // console.log(user); // send to server
       resolve();
     }, 2000);
   });

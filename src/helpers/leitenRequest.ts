@@ -29,6 +29,7 @@ export interface ILeitenRequest<Payload, Result>
   ) => void;
   set: (value: Partial<Result> | void, rewrite?: boolean) => void;
   key: string;
+  getState: () => ILeitenLoading<Payload, Result>;
 }
 
 export interface ILeitenRequestCallback<Payload, Result> {
@@ -59,11 +60,13 @@ export interface ILeitenRequestOptions<Payload, Result> {
   optimisticUpdate?: (params: Payload) => Result;
 }
 
+/** @deprecated use leitenRequest from leiten-zustand library instead */
+
 export const leitenRequest = <
   Store extends object,
   P extends DotNestedKeys<Store>,
   Payload,
-  Result
+  Result extends DotNestedValue<Store, P> | null | void
 >(
   store: StoreApi<Store>,
   path: P extends string
@@ -80,10 +83,10 @@ export const leitenRequest = <
   options?: ILeitenRequestOptions<Payload, Result>
 ): ILeitenRequest<Payload, Result> => {
   const key = nanoid(12);
-  const initialContent: Result = get(store.getState(), path, null) as Result;
   const initialState = initialLeitenLoading<Payload, Result>(
     options?.initialStatus
   );
+  const initialContent = get(store.getState(), path, null) as Result;
 
   const setState = (state: ILeitenLoading<Payload, Result>) => {
     useLeitenRequests.setState({ [key]: state });
@@ -118,6 +121,8 @@ export const leitenRequest = <
         : ({ ...state, ...value } as Result);
       const content = typeof value === "object" ? objectContent : value;
       setContent(content);
+    } else {
+      value !== undefined && value !== null && setContent(value);
     }
   };
 
@@ -198,17 +203,23 @@ export const leitenRequest = <
     );
   };
 
-  const resettable =
-    (store.getState() as any)["_resettableLifeCycle"] !== undefined;
-  if (resettable) {
-    store.subscribe((next, prev) => {
-      if (
-        (next as any)["_resettableLifeCycle"] === false &&
-        (prev as any)["_resettableLifeCycle"] === true
-      )
-        setState(initialState);
-    });
-  }
+  setTimeout(() => {
+    const resettable =
+      (store.getState() as any)["_resettableLifeCycle"] !== undefined;
+    if (resettable) {
+      store.subscribe((next, prev) => {
+        if (
+          (next as any)["_resettableLifeCycle"] === false &&
+          (prev as any)["_resettableLifeCycle"] === true
+        )
+          setState(initialState);
+      });
+    }
+  }, 0);
+
+  const _getState = () => {
+    return useLeitenRequests.getState()[key];
+  };
 
   return Object.assign(useRequest, {
     abort: _abort,
@@ -216,6 +227,7 @@ export const leitenRequest = <
     clear,
     set: _set,
     key,
+    getState: _getState,
   });
 };
 

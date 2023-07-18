@@ -26,6 +26,8 @@ export interface ILeitenListEffects<ITEM, State> {
   patchEffect?: (items: ITEM[]) => Partial<State>;
 }
 
+/** @deprecated use leitenList from leiten-zustand library instead */
+
 export const leitenList = <
   Store extends object,
   P extends DotNestedKeys<Store>
@@ -40,11 +42,11 @@ export const leitenList = <
   params?: ILeitenListEffects<ArrayElement<DotNestedValue<Store, P>>, Store>
 ): ILeitenList<ArrayElement<DotNestedValue<Store, P>>> => {
   type ITEM = ArrayElement<DotNestedValue<Store, P>>;
-  const initialValue = get(store.getState(), path, "_empty") as
-    | ITEM[]
-    | "_empty";
-  if (initialValue === "_empty") {
-    throw new Error("[leitenList] The defined path does not exist");
+  const initialValue = get(store.getState(), path, "_empty") as ITEM[];
+  if ((initialValue as any) === "_empty") {
+    throw new Error(
+      "[leitenList] The defined path does not match the required structure"
+    );
   }
 
   const compare = params?.compare || defaultCompareList;
