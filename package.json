@@ -1,6 +1,6 @@
 {
   "name": "zustand-fetching",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "private": false,
   "description": "Zustand state manager controllers",
   "repository": {
