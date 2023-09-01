@@ -91,7 +91,7 @@ store. [Examples](https://github.com/Hecmatyar/leiten-zustand/tree/main/src/exam
   methods such as _action_, _clear_, _abort_, and _set_.
 - [leitenGroupRequest](https://github.com/Hecmatyar/leiten-zustand/blob/main/src/examples/controllers/6_Controller_GroupRequest.tsx)
   Handles multiple similar requests dynamically. Returns a **hook** with two overloads and provides methods such
-  as _call_ and _clear_. Can work with arrays as well as with the normalized list.
+  as _action_ and _clear_. Can work with arrays as well as with the normalized list.
 - [leitenRecord](https://github.com/Hecmatyar/leiten-zustand/blob/main/src/examples/controllers/2_Controller_Record.tsx)
   Works with objects and provides methods such as _set_, _patch_ and _clear_.
 - [leitenPrimitive](https://github.com/Hecmatyar/leiten-zustand/blob/main/src/examples/controllers/3_Controller_Primitive.tsx)
@@ -102,10 +102,18 @@ store. [Examples](https://github.com/Hecmatyar/leiten-zustand/tree/main/src/exam
   the array item
   is an object, a **compare** function needs to be set in the controller's options (third parameter).
 - [leitenNormalizedList](https://github.com/Hecmatyar/leiten-zustand/blob/main/src/examples/controllers/4_Controller_List.tsx)
-  Same as leitenList but works with normalized state.
+  Same as **leitenList** but works with normalized state.
 - [leitenModal](https://github.com/Hecmatyar/leiten-zustand/blob/main/src/examples/controllers/5_Controller_Modal.tsx)
   Helps work with modals and provides a built-in modal manager for cascading modals. Returns hooks
   with [openState, hiddenState] and provides methods such as _open_, _close_ and _action_.
+- [leitenFilterRequest](https://github.com/Hecmatyar/leiten-zustand/blob/main/src/examples/controllers/7_Controller_FilterRequest.tsx)
+  Same as **leitenRequest** but provide _createFilter_ and _listen_ methods, which allows you to create an
+  unlimited number of filters for the request. The request will automatically start _action_ when the filter's _patch_
+  method is called. Or in case _listen_, the request will be executed if the observed value changes.
+- [leitenGroupFilterRequest](https://github.com/Hecmatyar/leiten-zustand/blob/main/src/examples/controllers/7_Controller_FilterRequest.tsx)
+  Same as **leitenGroupRequest** but provide _createFilter_ method, which allows you to
+  create an
+  unlimited number of filters for the request. Works like leitenFilterRequest.
 
 > All leitenControllers automatically infer the required types based on the specified path and will throw a **TypeScript
 > error** if the provided path does not match the controller's requirements or established types. Examples:

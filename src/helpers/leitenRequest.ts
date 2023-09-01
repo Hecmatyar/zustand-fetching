@@ -1,6 +1,7 @@
 import { produce } from "immer";
 import { get, isEqual, set } from "lodash-es";
 import { nanoid } from "nanoid";
+import { useEffect, useState } from "react";
 import { StoreApi } from "zustand";
 import { shallow } from "zustand/shallow";
 
@@ -14,7 +15,9 @@ import {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-type UseRequestType<Payload, Result> = <U = ILeitenLoading<Payload, Result>>(
+export type UseRequestType<Payload, Result> = <
+  U = ILeitenLoading<Payload, Result>
+>(
   selector?: (state: ILeitenLoading<Payload, Result>) => U,
   equals?: (a: U, b: U) => boolean
 ) => U;
@@ -29,7 +32,7 @@ export interface ILeitenRequest<Payload, Result>
   ) => void;
   set: (value: Partial<Result> | void, rewrite?: boolean) => void;
   key: string;
-  getState: () => ILeitenLoading<Payload, Result>;
+  get: () => ILeitenLoading<Payload, Result>;
 }
 
 export interface ILeitenRequestCallback<Payload, Result> {
@@ -61,7 +64,6 @@ export interface ILeitenRequestOptions<Payload, Result> {
 }
 
 /** @deprecated use leitenRequest from leiten-zustand library instead */
-
 export const leitenRequest = <
   Store extends object,
   P extends DotNestedKeys<Store>,
@@ -196,28 +198,27 @@ export const leitenRequest = <
     setContent(initialContent);
   };
 
+  const usages: Record<string, boolean> = {};
   const useRequest: UseRequestType<Payload, Result> = (selector, equals) => {
+    const [id] = useState(() => nanoid());
+
+    useEffect(() => {
+      usages[id] = true;
+
+      return () => {
+        usages[id] = false;
+      };
+    }, []);
+
     return useLeitenRequests(
       (state) => (selector || nonTypedReturn)(state[key] || initialState),
       shallow || equals
     );
   };
 
-  setTimeout(() => {
-    const resettable =
-      (store.getState() as any)["_resettableLifeCycle"] !== undefined;
-    if (resettable) {
-      store.subscribe((next, prev) => {
-        if (
-          (next as any)["_resettableLifeCycle"] === false &&
-          (prev as any)["_resettableLifeCycle"] === true
-        )
-          setState(initialState);
-      });
-    }
-  }, 0);
+  resettableStoreSubscription(store, () => setState(initialState));
 
-  const _getState = () => {
+  const _get = () => {
     return useLeitenRequests.getState()[key];
   };
 
@@ -227,12 +228,32 @@ export const leitenRequest = <
     clear,
     set: _set,
     key,
-    getState: _getState,
+    get: _get,
+    _usages: usages,
   });
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const nonTypedReturn = (value: any) => value;
+
+export const resettableStoreSubscription = (
+  store: StoreApi<object>,
+  callback: () => void
+) => {
+  setTimeout(() => {
+    const resettable =
+      (store.getState() as any)["_resettableLifeCycle"] !== undefined;
+    if (resettable) {
+      store.subscribe((next, prev) => {
+        if (
+          (next as any)["_resettableLifeCycle"] === false &&
+          (prev as any)["_resettableLifeCycle"] === true
+        )
+          callback();
+      });
+    }
+  }, 0);
+};
 
 function createAsyncActions<Payload, Result>(
   payloadCreator: (
@@ -286,7 +307,7 @@ interface IReaction<Payload, Result> {
   ) => void;
 }
 
-type IExtraArgument = {
+export type IExtraArgument = {
   signal: AbortSignal;
   // requestId: string
 };

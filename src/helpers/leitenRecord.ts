@@ -6,7 +6,7 @@ import { DotNestedKeys, DotNestedValue } from "../interfaces/dotNestedKeys";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-interface ILeitenRecordEffects<VALUE, State> {
+export interface ILeitenRecordEffects<VALUE, State> {
   patchEffect?: (value: VALUE) => Partial<State>;
   sideEffect?: (value: { prev: VALUE; next: VALUE }) => void;
 }
@@ -14,11 +14,11 @@ interface ILeitenRecordEffects<VALUE, State> {
 export interface ILeitenRecord<VALUE> {
   patch: (value: Partial<VALUE>) => void;
   set: (value: VALUE) => void;
+  get: () => VALUE;
   clear: () => void;
 }
 
 /** @deprecated use leitenRecord from leiten-zustand library instead */
-
 export const leitenRecord = <
   Store extends object,
   P extends DotNestedKeys<Store>
@@ -53,19 +53,22 @@ export const leitenRecord = <
       set(draft, path, next);
     });
     const nextState = effects?.patchEffect
-      ? { ...effects.patchEffect(next), ...draftState }
+      ? { ...draftState, ...effects.patchEffect(next) }
       : draftState;
     store.setState(nextState);
     effects?.sideEffect?.({ prev, next });
   };
 
   const clear = () => {
-    setState(initialValue);
+    const nextState = produce(store.getState(), (draft) => {
+      set(draft, path, initialValue);
+    });
+    store.setState(nextState);
   };
 
   const patch = (value: Partial<VALUE>) => {
     setState({ ...getState(), ...value });
   };
 
-  return { clear, set: setState, patch };
+  return { clear, set: setState, get: getState, patch };
 };

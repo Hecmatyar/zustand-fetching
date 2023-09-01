@@ -11,7 +11,6 @@ type NormalizedType<ITEM> = Record<string, ITEM>;
 type ValueOf<T> = T extends Record<infer _K, infer V> ? V : never;
 
 /** @deprecated use leitenNormalizedList from leiten-zustand library instead */
-
 export const leitenNormalizedList = <
   Store extends object,
   P extends DotNestedKeys<Store>
@@ -35,6 +34,7 @@ export const leitenNormalizedList = <
   }
 ): ILeitenList<ValueOf<DotNestedValue<Store, P>>> & {
   removeByKey: (value: string | string[]) => void;
+  get: () => NormalizedType<ValueOf<DotNestedValue<Store, P>>>;
 } => {
   type ITEM = ValueOf<DotNestedValue<Store, P>>;
 
@@ -56,13 +56,13 @@ export const leitenNormalizedList = <
       set(draft, path, value);
     });
     const nextState = params?.patchEffect
-      ? { ...params.patchEffect(value), ...draftState }
+      ? { ...draftState, ...params.patchEffect(value) }
       : draftState;
     store.setState(nextState);
     params?.sideEffect?.();
   };
 
-  const getState = (): NormalizedType<ITEM> => {
+  const _get = (): NormalizedType<ITEM> => {
     const list = get(store.getState(), path, "_empty") as
       | NormalizedType<ITEM>
       | "_empty";
@@ -87,18 +87,21 @@ export const leitenNormalizedList = <
 
   const add = (items: ITEM | ITEM[]) => {
     setState({
-      ...getState(),
+      ..._get(),
       ...getMap(Array.isArray(items) ? items : [items]),
     });
   };
 
   const clear = () => {
-    setState({ ...initialValue });
+    const nextState = produce(store.getState(), (draft) => {
+      set(draft, path, initialValue);
+    });
+    store.setState(nextState);
   };
 
   const removeByKey = (removeKeys: string[] | string) => {
     const acc: NormalizedType<ITEM> = {};
-    for (const [key, item] of Object.entries(getState())) {
+    for (const [key, item] of Object.entries(_get())) {
       if (
         Array.isArray(removeKeys)
           ? !removeKeys.includes(key)
@@ -112,7 +115,7 @@ export const leitenNormalizedList = <
 
   const remove = (remove: ITEM[] | ITEM) => {
     const acc: NormalizedType<ITEM> = {};
-    for (const [key, item] of Object.entries(getState())) {
+    for (const [key, item] of Object.entries(_get())) {
       if (
         Array.isArray(remove)
           ? !remove.some((i) => compare(item, i))
@@ -127,19 +130,19 @@ export const leitenNormalizedList = <
   const filter = (validate: (item: ITEM) => boolean) => {
     setState(
       Object.fromEntries(
-        Object.entries(getState()).filter(([_, item]) => validate(item))
+        Object.entries(_get()).filter(([_, item]) => validate(item))
       )
     );
   };
 
   const update = (items: ITEM[] | ITEM) => {
     const updated = getMap(Array.isArray(items) ? items : [items]);
-    setState({ ...getState(), ...updated });
+    setState({ ..._get(), ...updated });
   };
 
   const toggle = (item: ITEM) => {
     const key = params.getKey(item);
-    const isChecked = key in getState();
+    const isChecked = key in _get();
 
     if (isChecked) {
       removeByKey(key);
@@ -148,8 +151,18 @@ export const leitenNormalizedList = <
     }
   };
 
-  return { set: _set, clear, toggle, update, filter, remove, add, removeByKey };
+  return {
+    set: _set,
+    get: _get,
+    clear,
+    toggle,
+    update,
+    filter,
+    remove,
+    add,
+    removeByKey,
+  };
 };
 
-const defaultCompareList = <ITEM>(left: ITEM, right: ITEM): boolean =>
+export const defaultCompareList = <ITEM>(left: ITEM, right: ITEM): boolean =>
   left === right;

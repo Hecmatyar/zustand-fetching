@@ -25,7 +25,6 @@ export interface ILeitenModal<Data> {
 }
 
 /** @deprecated use leitenModal from leiten-zustand library instead */
-
 export const leitenModal = <
   Store extends object,
   P extends DotNestedKeys<Store>
